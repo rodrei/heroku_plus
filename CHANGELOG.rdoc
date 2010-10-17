@@ -1,7 +1,12 @@
-= v1.x.x (master)
+= vx.x.x (master)
 
-* Made gem requirements more specific.
-* Updated the README with additional documentation for clarification.
+* Added soft version requirements for Ruby 1.8.7.
+* Added soft version requirements for Heroku 1.0.0.
+* Renamed the "herokup" command to "hp".
+* Renamed the settings.yml file to heroku_plus.yml.
+* Renamed the "ssh_identity" key to "ssh_id" in the heroku_plus.yml file.
+* Added the "current_mode" key to the heroku_plus.yml file. Defaults to "stage".
+* Updated the README.
 
 = v1.1.0
 

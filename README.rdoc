@@ -131,13 +131,15 @@ The contents of the file should look like this (where the default values can be 
 
 = Usage
 
-From a command line, type: herokup -h
+From a command line, type: hp -h
 
 Full usage is displayed below:
 
   -s, --switch ACCOUNT             Switch Heroku credentials and SSH identity to specified account.
   -b, --backup ACCOUNT             Backup existing Heroku credentials and SSH identity to specified account.
   -d, --destroy ACCOUNT            Destroy Heroku credentials and SSH identity for specified account.
+  -p, --pass COMMAND               Pass command to Heroku with current app info.
+  -m, --migrate                    Migrate remote database and restart Heroku server with current app info.
   -l, --list                       Show all Heroku accounts.
   -i, --info                       Show the current Heroku credentials and SSH identity.
   -h, --help                       Show this help message.
@@ -148,7 +150,7 @@ Full usage is displayed below:
 From this point forward, you can switch between accounts as follows:
 
 1. Change directory to the app you want to work on.
-2. Type: herokup -s <account name>
+2. Type: hp -s <account name>
 3. Make changes to your code.
 4. Type: git commit -a -m “Your comments.”
 5. Type: git push heroku master.
