@@ -8,7 +8,7 @@ begin
     gem.summary = "Enhances default Heroku capabilities."
     gem.description = "Enhances Heroku with multi-account support and other useful capabilities."
     gem.authors = ["Brooke Kuhlmann"]
-    gem.email = "aeonscope@gmail.com"
+    gem.email = "brooke@redalchemist.com"
     gem.homepage = "http://github.com/aeonscope/heroku_plus"
     gem.executables = ["hp"]
     gem.default_executable = "hp"
