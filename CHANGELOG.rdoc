@@ -1,5 +1,6 @@
 = vx.x.x (master)
 
+* Switched to Bundler for building/packing of gem.
 * Added soft version requirements for Ruby 1.8.7.
 * Added soft version requirements for Heroku 1.0.0.
 * Renamed the "herokup" command to "hp".
