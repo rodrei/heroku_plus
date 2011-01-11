@@ -99,12 +99,12 @@ To support multiple accounts, I suggest the following:
 
 *NOTE*: Account switching will not work properly if all accounts are not suffixed with the .identity file extension.
 
-After you have created your identities. Send each identities public key to Heroku:
+After you have created your identities, send the identity of each public key to Heroku:
 
-  herokup -s identity
+  hp -s identity
   heroku keys:add ~/.ssh/id_rsa.pub
 
-The easiest way to test if it is setup right is to ssh to heroku:
+The easiest way to test if it is setup right is to SSH to Heroku:
 
   ssh -v git@official.heroku.com
 
