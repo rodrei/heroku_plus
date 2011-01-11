@@ -4,7 +4,7 @@ Managing multiple Heroku[http://heroku.com/] accounts is not easy with the Herok
 random scripts, etc. This gem enhances default Heroku capabilities with multi-account support so you can easily switch between accounts with a single
 command line command.
 
-Special thanks to Ruby5[http://ruby5.envylabs.com] for mentioning this gem in {Episode 103}[http://ruby5.envylabs.com/episodes/105-episode-103-august-17-2010].
+Thanks to Ruby5[http://ruby5.envylabs.com] for mentioning this gem in {Episode 103}[http://ruby5.envylabs.com/episodes/105-episode-103-august-17-2010].
 
 = License
 
@@ -18,8 +18,8 @@ See the CHANGELOG file for more info.
 = Requirements
 
 1. Mac OS X.
-2. Multiple Heroku[http://heroku.com/] accounts.
-3. Heroku gem[http://github.com/heroku/heroku].
+2. Multiple Heroku[http://heroku.com] accounts.
+3. {Heroku gem}[http://github.com/heroku/heroku].
 
 = Installation
 

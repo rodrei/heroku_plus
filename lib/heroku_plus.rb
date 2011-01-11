@@ -2,7 +2,7 @@ require "optparse"
 require "yaml"
 
 class HerokuPlus
-  VERSION_FILE = File.join File.dirname(__FILE__), "..", "VERSION.yml"
+  VERSION = "1.3.1"
   
   # Execute.
   def self.run args = ARGV
@@ -29,12 +29,6 @@ class HerokuPlus
     
     # Load modes and ensure current mode is set.
     load_modes
-
-    # Load version information.
-    if valid_file? VERSION_FILE, "Unable to load version information"
-      version_file = YAML::load_file VERSION_FILE
-      @version = [version_file[:major], version_file[:minor], version_file[:patch]] * '.'
-    end
   end
 
   # Read and parse the supplied command line arguments.
@@ -221,7 +215,7 @@ class HerokuPlus
   
   # Print version information.
   def print_version
-    puts "Heroku Plus " + @version
+    puts "Heroku Plus " + VERSION
   end
 
   protected
