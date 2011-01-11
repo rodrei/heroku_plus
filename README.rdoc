@@ -108,7 +108,8 @@ The easiest way to test if it is setup right is to SSH to Heroku:
 
   ssh -v git@official.heroku.com
 
-You should see "You can only access Heroku by ssh via git push and pull commands." at the bottom. If you do look for the correct email above at the end of a line like "debug1: Remote: Forced command: /home/git/bin/git_proxy <email>"
+You should see "You can only access Heroku by ssh via git push and pull commands." at the bottom. If you do, look for the correct email at the end of a line.
+For example: "debug1: Remote: Forced command: /home/git/bin/git_proxy <email>".
 
 === Project Git Configuration (~/Development/Ruby/your_project/.git/config)
 
