@@ -1,13 +1,14 @@
 = vx.x.x (master)
 
+* Updated the README.
 * Switched to Bundler for building/packing of gem.
+* Fixed stack dump when obtaining git config app information.
 * Added soft version requirements for Ruby 1.8.7.
 * Added soft version requirements for Heroku 1.0.0.
 * Renamed the "herokup" command to "hp".
 * Renamed the settings.yml file to heroku_plus.yml.
 * Renamed the "ssh_identity" key to "ssh_id" in the heroku_plus.yml file.
 * Added the "current_mode" key to the heroku_plus.yml file. Defaults to "stage".
-* Updated the README.
 
 = v1.1.0
 

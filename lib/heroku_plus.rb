@@ -227,7 +227,7 @@ class HerokuPlus
   # * +delimiter_end+ - Required. The end delimiter.
   def grab_substring string, delimiter_start, delimiter_end
     index = string.index(delimiter_start) + 1
-    length = string.rindex(delimiter_end) - index
+    length = (string.rindex(delimiter_end) || 0) - index
     string[index, length]
   end
   
