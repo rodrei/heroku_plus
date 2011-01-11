@@ -1,4 +1,4 @@
-= vx.x.x (master)
+= v1.3.0
 
 * Updated the README.
 * Switched to Bundler for building/packing of gem.
