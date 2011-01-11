@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.description = "Enhances Heroku with multi-account support and other useful capabilities."
 
   s.rdoc_options << "CHANGELOG.rdoc"
-  s.required_ruby_version = "~> 1.8.6"
+  s.required_ruby_version = "~> 1.8.7"
   s.add_dependency "heroku", "~> 1.0.0"
   s.add_development_dependency "rspec"
   s.executables << "hp"
