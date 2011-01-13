@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Brooke Kuhlmann"]
   s.email       = ["brooke@redalchemist.com"]
   s.homepage    = "http://www.redalchemist.com"
-  s.summary     = "Enhances default Heroku capabilities."
-  s.description = "Enhances Heroku with multi-account support and other useful capabilities."
+  s.summary     = "Enhances default Heroku functionality."
+  s.description = "Enhances default Heroku functionality beyond what is provided with the Heroku gem."
 
   s.rdoc_options << "CHANGELOG.rdoc"
   s.required_ruby_version = "~> 1.8.7"
