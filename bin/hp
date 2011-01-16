@@ -1,4 +1,5 @@
 #!/usr/local/bin/ruby
 
 require "heroku_plus"
-HerokuPlus.run ARGV
+require "heroku_plus/command"
+HerokuPlus::Command.run ARGV
