@@ -160,7 +160,7 @@ Heroku Commands:
   -m, --migrate                    Migrate remote database and restart server for current app.
   -r, --restart                    Restart remote server for current app.
   -b, --backup                     Backup PostgreSQL database on remote server for current app.
-  -I, --import RAILS_ENV           Import latest remote PostgreSQL database into local database for given environment for current app.
+  -I, --import RAILS_ENV           Import latest remote PostgreSQL database into local database for current environment and app.
 
 General Information:
   -i, --info                       Show current Heroku credentials and SSH identity.

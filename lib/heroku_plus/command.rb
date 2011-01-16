@@ -98,7 +98,7 @@ module HerokuPlus
           exit
         end
 
-        o.on "-I", "--import RAILS_ENV", "Import latest remote PostgreSQL database into local database for given environment for current app." do |env|
+        o.on "-I", "--import RAILS_ENV", "Import latest remote PostgreSQL database into local database for current environment and app." do |env|
           import_remote_database(env) and exit
         end
 
