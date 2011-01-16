@@ -225,12 +225,17 @@ module HerokuPlus
       if database_settings.empty?
         puts "ERROR: Unable to load database setings for current app. Are you within the root folder of your Rails project?"
       else
-        heroku = Heroku::Client.new account, password
-        pg = PGBackups::Client.new heroku.config_vars(application)["PGBACKUPS_URL"]
-        database = "latest.dump"
-        system_with_echo "curl -o #{database} '#{pg.get_latest_backup["public_url"]}'"
-        system_with_echo "pg_restore --verbose --clean --no-acl --no-owner -h #{settings[env]['host']} -U #{settings[env]['username']} -d #{settings[env]['database']} #{database}"
-        system_with_echo "rm -f #{database}"
+        puts "You are about to perminently override all data in the local \"#{env}\" database. Do you wish to continue (y/n)?"
+        if gets.strip == 'y'
+          heroku = Heroku::Client.new account, password
+          pg = PGBackups::Client.new heroku.config_vars(application)["PGBACKUPS_URL"]
+          database = "latest.dump"
+          system_with_echo "curl -o #{database} '#{pg.get_latest_backup["public_url"]}'"
+          system_with_echo "pg_restore --verbose --clean --no-acl --no-owner -h #{settings[env]['host']} -U #{settings[env]['username']} -d #{settings[env]['database']} #{database}"
+          system_with_echo "rm -f #{database}"
+        else
+          puts "Import aborted."
+        end
       end
     end
     
