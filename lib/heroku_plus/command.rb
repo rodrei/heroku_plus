@@ -89,7 +89,7 @@ module HerokuPlus
         end
 
         o.on "-r", "--restart", "Restart remote server for current app." do
-          system_with_echo("heroku console --app #{application}") and exit
+          system_with_echo("heroku restart --app #{application}") and exit
         end
 
         o.on "-b", "--backup", "Backup PostgreSQL database on remote server for current app." do
@@ -269,7 +269,7 @@ module HerokuPlus
         if @modes.keys.empty?
           puts " - unknown"
         else
-          @modes.each_key {|key| puts " - Mode: #{key}, App: #{application}"}
+          @modes.each_key {|key| puts " - Mode: #{key}, App: #{@modes[key][:app]}"}
         end
       end
 
