@@ -2,7 +2,7 @@ require "optparse"
 require "yaml"
 
 class HerokuPlus
-  VERSION = "1.3.0"
+  VERSION = "1.4.0"
   
   # Execute.
   def self.run args = ARGV
@@ -10,21 +10,24 @@ class HerokuPlus
     hp.parse_args args
   end
 
+  # Initialize.
   def initialize
     # Set defaults.
     @heroku_home = File.join ENV["HOME"], ".heroku"
     @heroku_credentials = "credentials"
     @ssh_home = File.join ENV["HOME"], ".ssh"
-    @ssh_id = "id_rsa"
     @git_config_file = ".git/config"
+    @settings = {:ssh_id => "id_rsa", :mode => "stage"}
     @settings_file = File.join @heroku_home, "heroku_plus.yml"
-    @current_mode = :stage
 
-    # Override defaults with custom settings (if found).
+    # Apply custom settings (if any).
     if File.exists? @settings_file
-      settings_file = YAML::load_file @settings_file
-      @ssh_id = settings_file[:ssh_id] unless settings_file[:ssh_id].nil?
-      @current_mode = settings_file[:current_mode].to_sym unless settings_file[:current_mode].nil?
+      begin
+        settings = YAML::load_file @settings_file
+        @settings.merge! settings.reject {|key, value| value.nil?}
+      rescue
+        puts "ERROR: Invalid #{@settings_file} settings file."
+      end
     end
     
     # Load modes and ensure current mode is set.
@@ -36,11 +39,13 @@ class HerokuPlus
     # Defaults.
     args = ["-h"] if args.empty?
 
-    # Configure.
+    # Options.
     parser = OptionParser.new do |o|
       o.banner = "Usage: hp [options]"
 
-      o.on_tail "-s", "--switch ACCOUNT", String, "Switch Heroku credentials and SSH identity to specified account." do |account|
+      o.separator ''
+      o.separator "Account Management:"
+      o.on "-s", "--switch ACCOUNT", String, "Switch Heroku credentials and SSH identity for specified account." do |account|
         puts
         switch_credentials account
         switch_identity account
@@ -48,41 +53,57 @@ class HerokuPlus
         exit
       end
 
-      o.on_tail "-b", "--backup ACCOUNT", String, "Backup existing Heroku credentials and SSH identity to specified account." do |account|
+      o.on "-B", "--backup ACCOUNT", String, "Backup existing Heroku credentials and SSH identity for specified account." do |account|
         backup_credentials account
         backup_identity account
         exit
       end
 
-      o.on_tail "-d", "--destroy ACCOUNT", String, "Destroy Heroku credentials and SSH identity for specified account." do |account|
+      o.on "-D", "--destroy ACCOUNT", String, "Destroy Heroku credentials and SSH identity for specified account." do |account|
         destroy_credentials account
         destroy_identity account
         exit
       end
 
-      o.on_tail "-p", "--pass COMMAND", "Pass command to Heroku with current app info." do |command|
-        verbose_system "heroku", command, "--app", current_app
+      o.on "-M", "--mode MODE", String, "Switches mode for current account." do |mode|
+        switch_mode mode
+        print_info
         exit
       end
+      
+      o.separator ''
+      o.separator "Heroku Commands:"
+      o.on "-p", "--pass COMMAND", "Pass command to Heroku for current app. TIP: Wrap complex commands in quotes." do |command|
+        system_with_echo("heroku", command, "--app", current_app) and exit
+      end
 
-      o.on_tail "-m", "--migrate", "Migrate remote database and restart Heroku server with current app info." do |command|
-        verbose_system "heroku rake db:migrate --app #{current_app} && heroku restart --app #{current_app}"
-        exit
+      o.on "-c", "--console", "Open remote console for current app." do
+        system_with_echo("heroku console --app #{current_app}") and exit
+      end
+
+      o.on "-m", "--migrate", "Migrate remote database and restart server for current app." do
+        system_with_echo("heroku rake db:migrate --app #{current_app} && heroku restart --app #{current_app}") and exit
+      end
+
+      o.on "-r", "--restart", "Restart remote server for current app." do
+        system_with_echo("heroku console --app #{current_app}") and exit
+      end
+      
+      o.separator ''
+      o.separator "General Information:"
+      o.on_tail "-i", "--info", "Show current Heroku credentials and SSH identity." do
+        print_info and exit
       end
 
       o.on_tail "-l", "--list", "Show all Heroku accounts." do
         print_accounts and exit
       end
 
-      o.on_tail "-i", "--info", "Show the current Heroku credentials and SSH identity." do
-        print_info and exit
-      end
-
       o.on_tail "-h", "--help", "Show this help message." do
         puts parser and exit
       end
 
-      o.on_tail("-v", "--version", "Show the current version.") do
+      o.on_tail("-v", "--version", "Show version.") do
         print_version and exit
       end      
     end
@@ -97,8 +118,24 @@ class HerokuPlus
     end
   end
   
+  # Answer current application information.
   def current_app
-    !@modes.keys.empty? && @modes.has_key?(@current_mode) ? @modes[@current_mode][:app] : "unknown"
+    !@modes.keys.empty? && @modes.has_key?(@settings[:mode]) ? @modes[@settings[:mode]][:app] : "unknown"
+  end
+
+  # Switch Heroku credentials to given account.
+  # ==== Parameters
+  # * +account+ - Required. The account name to switch to. Defaults to "unknown".
+  def switch_credentials account = "unknown"
+    account_file = File.join @heroku_home, account + '.' + @heroku_credentials
+    credentials_file = File.join @heroku_home, @heroku_credentials
+    puts "Switching Heroku credentials to \"#{account}\" account..."
+    if valid_file? account_file
+      system "rm -f #{credentials_file}"
+      system "ln -s #{account_file} #{credentials_file}"
+    else
+      puts "ERROR: Heroku account does not exist!"
+    end
   end
   
   # Backup current Heroku credentials to given account.
@@ -117,45 +154,12 @@ class HerokuPlus
     destroy_file File.join(@heroku_home, account + '.' + @heroku_credentials)
   end
 
-  # Switch Heroku credentials to given account.
-  # ==== Parameters
-  # * +account+ - Required. The account name to switch to. Defaults to "unknown".
-  def switch_credentials account = "unknown"
-    account_file = File.join @heroku_home, account + '.' + @heroku_credentials
-    credentials_file = File.join @heroku_home, @heroku_credentials
-    puts "Switching Heroku credentials to \"#{account}\" account..."
-    if valid_file? account_file
-      system "rm -f #{credentials_file}"
-      system "ln -s #{account_file} #{credentials_file}"
-    else
-      puts "ERROR: Heroku account does not exist!"
-    end
-  end
-  
-  # Backup current SSH identity to given account.
-  # ==== Parameters
-  # * +account+ - Required. The account name for the backup. Defaults to "unknown".
-  def backup_identity account = "unknown"
-    puts "\nBacking up current SSH identity to \"#{account}\" account..."
-    backup_file File.join(@ssh_home, @ssh_id), File.join(@ssh_home, account + ".identity")
-    backup_file File.join(@ssh_home, @ssh_id + ".pub"), File.join(@ssh_home, account + ".identity.pub")
-  end  
-  
-  # Destroy SSH identity for given account.
-  # ==== Parameters
-  # * +account+ - Required. The account to destroy. Defaults to "unknown".
-  def destroy_identity account
-    puts "\nDestroying SSH identity for \"#{account}\" account..."
-    destroy_file File.join(@ssh_home, account + ".identity")
-    destroy_file File.join(@ssh_home, account + ".identity.pub")
-  end  
-  
   # Switch SSH identity to given account.
   # ==== Parameters
   # * +account+ - Required. The account name to switch to. Defaults to "unknown".
   def switch_identity account = "unknown"
-    old_private_file = File.join @ssh_home, @ssh_id
-    old_public_file = File.join @ssh_home, @ssh_id + ".pub"
+    old_private_file = File.join @ssh_home, @settings[:ssh_id]
+    old_public_file = File.join @ssh_home, @settings[:ssh_id] + ".pub"
     new_private_file = File.join @ssh_home, account + ".identity"
     new_public_file = File.join @ssh_home, account + ".identity.pub"
     puts "Switching Heroku SSH identity to \"#{account}\" account..."
@@ -169,6 +173,39 @@ class HerokuPlus
     end
   end
   
+  # Backup current SSH identity to given account.
+  # ==== Parameters
+  # * +account+ - Required. The account name for the backup. Defaults to "unknown".
+  def backup_identity account = "unknown"
+    puts "\nBacking up current SSH identity to \"#{account}\" account..."
+    backup_file File.join(@ssh_home, @settings[:ssh_id]), File.join(@ssh_home, account + ".identity")
+    backup_file File.join(@ssh_home, @settings[:ssh_id] + ".pub"), File.join(@ssh_home, account + ".identity.pub")
+  end  
+  
+  # Destroy SSH identity for given account.
+  # ==== Parameters
+  # * +account+ - Required. The account to destroy. Defaults to "unknown".
+  def destroy_identity account
+    puts "\nDestroying SSH identity for \"#{account}\" account..."
+    destroy_file File.join(@ssh_home, account + ".identity")
+    destroy_file File.join(@ssh_home, account + ".identity.pub")
+  end  
+  
+  # Switch mode for current account.
+  # ==== Parameters
+  # * +mode+ - Required. The mode to switch to. Defaults to "unknown".
+  def switch_mode mode = "unknown"
+    begin
+      settings = YAML::load_file @settings_file
+      puts "\nSwitching to \"#{mode}\" mode..."
+      @settings[:mode] = mode
+      File.open(@settings_file, 'w') {|file| file << YAML::dump(@settings)}
+    rescue
+      puts "ERROR: Invalid #{@settings_file} settings file."
+    end
+  end
+
+  # Print all available accounts.
   def print_accounts
     puts "\n Current Heroku accounts are:"
     Dir.glob("#{@heroku_home}/*.#{@heroku_credentials}").each do |path|
@@ -180,12 +217,12 @@ class HerokuPlus
   # Print active account information.
   def print_info
     credentials_file = File.join @heroku_home, @heroku_credentials
-    ssh_private_file = File.join @ssh_home, @ssh_id
-    ssh_public_file = File.join @ssh_home, @ssh_id + ".pub"
+    ssh_private_file = File.join @ssh_home, @settings[:ssh_id]
+    ssh_public_file = File.join @ssh_home, @settings[:ssh_id] + ".pub"
     
     # Account
     if valid_file?(credentials_file) && valid_file?(ssh_private_file) && valid_file?(ssh_public_file)
-      puts "\nCurrent account settings:"
+      puts "\nCurrent Account Settings:"
       puts " - Account:             #{current_heroku_account credentials_file}" 
       puts " - Password:            #{'*' * current_heroku_password(credentials_file).size}"
       puts " - Credentials:         #{credentials_file}"
@@ -197,16 +234,14 @@ class HerokuPlus
     
     # Project
     if File.exists? @git_config_file
-      puts "\nCurrent project settings:"
-      puts " - Mode: #{@current_mode}"
+      puts "\nCurrent Project Settings:"
+      puts " - Mode: #{@settings[:mode]}"
       puts " - App:  #{current_app}"
+      puts "\nAvailable Options:"
       if @modes.keys.empty?
         puts " - unknown"
       else
-        puts " - Available Options:"
-        @modes.each_key do |key|
-          puts "    - Mode: #{key}, App: #{current_app}"
-        end
+        @modes.each_key {|key| puts " - Mode: #{key}, App: #{current_app}"}
       end
     end
 
@@ -238,30 +273,47 @@ class HerokuPlus
   def valid_file? file, message = "Invalid file"
     File.exists?(file) ? true : ("ERROR: #{message}: #{file}." and false)
   end
-  
+
+  # Loads and stores the various modes as defined by the .git/config file of a project.
+  # An example of modes defined in a .git/config file are as follows:
+  #
+  # [remote "production"]
+  #   url = git@official.heroku.com:example.git
+  #   fetch = +refs/heads/*:refs/remotes/heroku/*
+  # [remote "stage"]
+  #   url = git@official.heroku.com:example-stage.git
+  #   fetch = +refs/heads/*:refs/remotes/merc-stage/*
+  #
+  # In the example above, the valid modes would be: production and stage. The associated apps
+  # would be: example and example-stage. The resulting configuration would be: {"production" => {:app => "example"}, "stage" => {:app => "example-stage"}}
   def load_modes
     @modes = {}
     mode = nil
     if File.exists? @git_config_file
       open(@git_config_file, 'r').readlines.each do |line|
+        # Look only for lines with a git repository. Example: url = git@official.heroku.com:example.git
         unless mode.nil?
           @modes[mode][:app] = grab_substring(line, ':', ".git")
           mode = nil
         end
+        # Acquire the mode from lines that begin with "[remote" only.
         if line.include? "[remote "
-          mode = grab_substring(line, "\"", "\"").to_sym
+          mode = grab_substring line, "\"", "\""
           @modes.merge! mode => {:app => nil}
         end
       end
-      @current_mode = @modes.keys.first if !@modes.keys.empty? && !@modes.has_key?(@current_mode)
     else
       puts "ERROR: Could not load Git configuration file for current project: #{@git_config_file}"
     end
   end
-  
-  def verbose_system *args
-    puts args.join(' ')
-    system *args
+
+  # Executes and echos the given command line arguments.
+  # ==== Parameters
+  # * +args+ - Required. The command line to be executed.
+  def system_with_echo *args
+    command = args * ' '
+    puts command
+    system command
   end  
 
   # Answer the current Heroku account name of the given credentials file.
