@@ -1,10 +1,10 @@
 require "optparse"
 require "yaml"
+require "heroku_plus/version"
+require "heroku"
 require "pgbackups/client"
 
 class HerokuPlus
-  VERSION = "1.4.0"
-  
   # Execute.
   def self.run args = ARGV
     hp = HerokuPlus.new
