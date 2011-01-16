@@ -1,8 +1,9 @@
 = Overview
 
-Managing multiple Heroku[http://heroku.com/] accounts is not easy with the Heroku gem. In fact, it is not even possible without a lot of manual labor,
-random scripts, etc. This gem enhances default Heroku capabilities with multi-account support so you can easily switch between accounts with a single
-command line command.
+Managing multiple Heroku[http://heroku.com/] accounts is not easy with the Heroku gem. This gem builds upon capabilities found in the Heroku gem by
+adding multi-account support so you can switch between accounts using a single command line command. In addition to the multi-account support, this
+gem also makes available all default Heroku commands enhanced with your current account settings. Once you get your feet wet this this gem, you'll
+soon find that you'll be using less of the _heroku_ command and more of the _hp_ command.
 
 Thanks to Ruby5[http://ruby5.envylabs.com] for mentioning this gem in {Episode 103}[http://ruby5.envylabs.com/episodes/105-episode-103-august-17-2010].
 
@@ -19,7 +20,6 @@ See the CHANGELOG file for more info.
 
 1. Mac OS X.
 2. Multiple Heroku[http://heroku.com] accounts.
-3. {Heroku gem}[http://github.com/heroku/heroku].
 
 = Installation
 
@@ -139,8 +139,8 @@ You can change the default settings for this gem by creating the following file:
 The contents of the file should look like this (where the default values can be changed to your liking):
 
   --- 
-  :ssh_identity: "id_rsa"
-  :current_mode: "production"
+  :ssh_id: id_rsa
+  :mode: production
 
 = Usage
 
@@ -148,15 +148,25 @@ From a command line, type: hp -h
 
 Full usage is displayed below:
 
-  -s, --switch ACCOUNT             Switch Heroku credentials and SSH identity to specified account.
-  -b, --backup ACCOUNT             Backup existing Heroku credentials and SSH identity to specified account.
-  -d, --destroy ACCOUNT            Destroy Heroku credentials and SSH identity for specified account.
-  -p, --pass COMMAND               Pass command to Heroku with current app info.
-  -m, --migrate                    Migrate remote database and restart Heroku server with current app info.
+Account Management:
+  -s, --switch_account ACCOUNT     Switch Heroku credentials and SSH identity for specified account.
+  -B, --backup_account ACCOUNT     Backup existing Heroku credentials and SSH identity for specified account.
+  -D, --destroy_account ACCOUNT    Destroy Heroku credentials and SSH identity for specified account.
+  -M, --mode MODE                  Switch mode for current account.
+
+Heroku Commands:
+  -p, --pass COMMAND               Pass command to Heroku for current app. TIP: Wrap complex commands in quotes.
+  -c, --console                    Open remote console for current app.
+  -m, --migrate                    Migrate remote database and restart server for current app.
+  -r, --restart                    Restart remote server for current app.
+  -b, --backup                     Backup PostgreSQL database on remote server for current app.
+  -I, --import RAILS_ENV           Import latest remote PostgreSQL database into local database for given environment for current app.
+
+General Information:
+  -i, --info                       Show current Heroku credentials and SSH identity.
   -l, --list                       Show all Heroku accounts.
-  -i, --info                       Show the current Heroku credentials and SSH identity.
   -h, --help                       Show this help message.
-  -v, --version                    Show the current version.
+  -v, --version                    Show version.
 
 = Workflow
 
