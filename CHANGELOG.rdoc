@@ -1,6 +1,7 @@
 = vx.x.x (master)
 
 * Fixed bug with not being able to wrap complex commands in quotes for passing to Heroku (i.e. -p).
+* Added soft version requirements for Heroku 1.16.0.
 * Added the -c, --console option for opening the remote console.
 * Added the -r, --restart option for restarting the remote server.
 * Added the -M, --mode option for changing mode of current app.

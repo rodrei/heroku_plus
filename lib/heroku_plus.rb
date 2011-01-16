@@ -1,5 +1,6 @@
 require "optparse"
 require "yaml"
+require "pgbackups/client"
 
 class HerokuPlus
   VERSION = "1.4.0"
@@ -45,7 +46,7 @@ class HerokuPlus
 
       o.separator ''
       o.separator "Account Management:"
-      o.on "-s", "--switch ACCOUNT", String, "Switch Heroku credentials and SSH identity for specified account." do |account|
+      o.on "-s", "--switch_account ACCOUNT", String, "Switch Heroku credentials and SSH identity for specified account." do |account|
         puts
         switch_credentials account
         switch_identity account
@@ -53,19 +54,19 @@ class HerokuPlus
         exit
       end
 
-      o.on "-B", "--backup ACCOUNT", String, "Backup existing Heroku credentials and SSH identity for specified account." do |account|
+      o.on "-B", "--backup_account ACCOUNT", String, "Backup existing Heroku credentials and SSH identity for specified account." do |account|
         backup_credentials account
         backup_identity account
         exit
       end
 
-      o.on "-D", "--destroy ACCOUNT", String, "Destroy Heroku credentials and SSH identity for specified account." do |account|
+      o.on "-D", "--destroy_account ACCOUNT", String, "Destroy Heroku credentials and SSH identity for specified account." do |account|
         destroy_credentials account
         destroy_identity account
         exit
       end
 
-      o.on "-M", "--mode MODE", String, "Switches mode for current account." do |mode|
+      o.on "-M", "--mode MODE", String, "Switch mode for current account." do |mode|
         switch_mode mode
         print_info
         exit
@@ -74,21 +75,38 @@ class HerokuPlus
       o.separator ''
       o.separator "Heroku Commands:"
       o.on "-p", "--pass COMMAND", "Pass command to Heroku for current app. TIP: Wrap complex commands in quotes." do |command|
-        system_with_echo("heroku", command, "--app", current_app) and exit
+        system_with_echo("heroku", command, "--app", application) and exit
       end
 
       o.on "-c", "--console", "Open remote console for current app." do
-        system_with_echo("heroku console --app #{current_app}") and exit
+        system_with_echo("heroku console --app #{application}") and exit
       end
 
       o.on "-m", "--migrate", "Migrate remote database and restart server for current app." do
-        system_with_echo("heroku rake db:migrate --app #{current_app} && heroku restart --app #{current_app}") and exit
+        system_with_echo("heroku rake db:migrate --app #{application} && heroku restart --app #{application}") and exit
       end
 
       o.on "-r", "--restart", "Restart remote server for current app." do
-        system_with_echo("heroku console --app #{current_app}") and exit
+        system_with_echo("heroku console --app #{application}") and exit
       end
       
+      o.on "-b", "--backup", "Backup PostgreSQL database on remote server for current app." do
+        system_with_echo "heroku pgbackups:capture --expire --app #{application}"
+        system_with_echo "heroku pgbackups --app #{application}"
+        exit
+      end
+
+      o.on "-I", "--import", "Import latest PostgreSQL database on remote server for current app." do
+        client = PGBackups::Client.new(ENV["PGBACKUPS_URL"])
+        puts client.url
+        # key = "heroku_database_url"
+        # system_with_echo "export #{key}=$(heroku pgbackups:url --app #{application})"
+        # system_with_echo "curl -o latest.dump $#{key}"
+        # system_with_echo "pg_restore --verbose --clean --no-acl --no-owner -h localhost -U pactimo -d merc_dev latest.dump"
+        # system_with_echo "rm -f latest.dump"
+        exit
+      end
+
       o.separator ''
       o.separator "General Information:"
       o.on_tail "-i", "--info", "Show current Heroku credentials and SSH identity." do
@@ -119,7 +137,7 @@ class HerokuPlus
   end
   
   # Answer current application information.
-  def current_app
+  def application
     !@modes.keys.empty? && @modes.has_key?(@settings[:mode]) ? @modes[@settings[:mode]][:app] : "unknown"
   end
 
@@ -236,12 +254,12 @@ class HerokuPlus
     if File.exists? @git_config_file
       puts "\nCurrent Project Settings:"
       puts " - Mode: #{@settings[:mode]}"
-      puts " - App:  #{current_app}"
+      puts " - App:  #{application}"
       puts "\nAvailable Options:"
       if @modes.keys.empty?
         puts " - unknown"
       else
-        @modes.each_key {|key| puts " - Mode: #{key}, App: #{current_app}"}
+        @modes.each_key {|key| puts " - Mode: #{key}, App: #{application}"}
       end
     end
 
