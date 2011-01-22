@@ -5,8 +5,6 @@ adding multi-account support so you can switch between accounts using a single c
 gem also makes available all default Heroku commands enhanced with your current account settings. Once you get your feet wet this this gem, you'll
 soon find that you'll be using less of the _heroku_ command and more of the _hp_ command.
 
-Thanks to Ruby5[http://ruby5.envylabs.com] for mentioning this gem in {Episode 103}[http://ruby5.envylabs.com/episodes/105-episode-103-august-17-2010].
-
 = License
 
 Copyright (c) 2010 {Red Alchemist}[http://www.redalchemist.com].
