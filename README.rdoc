@@ -144,7 +144,7 @@ The contents of the file should look like this (where the default values can be 
 
 From the command line, type: hp
 
-  hp account       # Show account information.
+  hp account       # Manage/show account information.
   hp pass COMMAND  # Pass command to Heroku.
   hp console       # Open remote console.
   hp restart       # Restart remote server.

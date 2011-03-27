@@ -25,7 +25,7 @@ module HerokuPlus
       load_modes
     end
 
-    desc "account", "Show account information."
+    desc "account", "Manage/show account information."
     map "-a" => :account
     method_option "switch", :aliases => "-s", :banner => "Switch to existing account", :type => :string, :default => nil
     method_option "mode", :aliases => "-m", :banner => "Switch account mode", :type => :string, :default => nil
