@@ -14,10 +14,12 @@ Gem::Specification.new do |s|
 
   s.rdoc_options << "CHANGELOG.rdoc"
   s.required_ruby_version = "~> 1.8.7"
+  s.add_dependency "thor", "~> 0.14.0"
   s.add_dependency "heroku", ">= 1.0.0"
   s.add_development_dependency "rspec"
+  s.add_development_dependency "aruba"
   s.executables << "hp"
-  
+
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{|file| File.basename file}

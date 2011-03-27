@@ -142,36 +142,37 @@ The contents of the file should look like this (where the default values can be 
 
 = Usage
 
-From a command line, type: hp -h
+From the command line, type: hp
 
-Full usage is displayed below:
+  hp account       # Show account information.
+  hp pass COMMAND  # Pass command to Heroku.
+  hp console       # Open remote console.
+  hp restart       # Restart remote server.
+  hp migrate       # Migrate remote database and restart server.
+  hp db            # Manage PostgreSQL database.
+  hp version       # Show version.
+  hp help          # Show this message.
 
-Account Management:
-  -s, --switch_account ACCOUNT     Switch Heroku credentials and SSH identity for specified account.
-  -B, --backup_account ACCOUNT     Backup existing Heroku credentials and SSH identity for specified account.
-  -D, --destroy_account ACCOUNT    Destroy Heroku credentials and SSH identity for specified account.
-  -M, --mode MODE                  Switch mode for current account.
+For more account options, type: hp help account
 
-Heroku Commands:
-  -p, --pass COMMAND               Pass command to Heroku for current app. TIP: Wrap complex commands in quotes.
-  -c, --console                    Open remote console for current app.
-  -m, --migrate                    Migrate remote database and restart server for current app.
-  -r, --restart                    Restart remote server for current app.
-  -b, --backup                     Backup PostgreSQL database on remote server for current app.
-  -I, --import RAILS_ENV           Import latest remote PostgreSQL database into local database for current environment and app.
+  -l, [--list = Show all configured accounts]               
+  -s, [--switch = Switch to existing account]               
+  -m, [--mode = Switch account mode]                        
+  -d, [--destroy = Delete existing account]                 
+  -b, [--backup = Backup existing account to new account]   
+  -i, [--info = Show current credentials and SSH identity]
 
-General Information:
-  -i, --info                       Show current Heroku credentials and SSH identity.
-  -l, --list                       Show all Heroku accounts.
-  -h, --help                       Show this help message.
-  -v, --version                    Show version.
+For more db options, type: hp help db
+
+  -b, [--backup = Backup remote PostgreSQL database.]                             
+  -i, [--import = Import latest remote PostgreSQL database into local database.] # Default: development
 
 = Workflow
 
 From this point forward, you can switch between accounts as follows:
 
 1. Change directory to the app you want to work on.
-2. Type: hp -s <account name>
+2. Type: hp -a -s <account name>
 3. Make changes to your code.
 4. Type: git commit -a -m “Your comments.”
 5. Type: git push heroku master.

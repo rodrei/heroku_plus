@@ -1,3 +1,9 @@
+= v3.0.0
+
+* Refactored the gem to use Thor instead of OptionParser for command line option parsing.
+* All account specific commands have been become options of the "account" option. Type "hp help account" for usage.
+* All database specific commands have been become options of "db" option. Type "hp help db" for usage.
+
 = v2.0.0
 
 * Fixed bug with not being able to wrap complex commands in quotes for passing to Heroku (i.e. -p).
