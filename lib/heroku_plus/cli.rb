@@ -61,9 +61,10 @@ module HerokuPlus
     map "-m" => :mode
     method_option "switch", :aliases => "-s", :desc => "Switch mode.", :type => :string, :default => nil
     method_option "list", :aliases => "-l", :desc => "Show modes.", :type => :boolean, :default => false
-    def mode
+    def mode mode = nil
       shell.say
       case
+      when mode then switch_mode(mode)
       when options[:switch] then switch_mode(options[:switch])
       when options[:list] then print_modes
       else print_modes
@@ -252,8 +253,8 @@ module HerokuPlus
       end
     end
 
+    # Print available modes.
     def print_modes
-      # Project
       if File.exists? @git_config_file
         shell.say "Available Modes:"
         if @modes.keys.empty?
