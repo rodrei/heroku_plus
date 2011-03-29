@@ -1,6 +1,9 @@
 = vx.x.x (master)
 
-* Removed the need for a Ruby version requirement (namely Ruby 1.8.7).
+* Fixed description display with command options.
+* Fixed the Ruby version requirement (namely Ruby 1.8.7) so that it is no longer required.
+* Added the printing of current account information after switching modes.
+* Moved mode management to a first level option (i.e. mode, -m). The original migrate (-m) option is now a sub-option of db.
 
 = v3.0.0
 
