@@ -13,7 +13,6 @@ Gem::Specification.new do |s|
   s.description = "Enhances default Heroku functionality beyond what is provided with the Heroku gem."
 
   s.rdoc_options << "CHANGELOG.rdoc"
-  s.required_ruby_version = "~> 1.8.7"
   s.add_dependency "thor", "~> 0.14.0"
   s.add_dependency "heroku", ">= 1.0.0"
   s.add_development_dependency "rspec"
