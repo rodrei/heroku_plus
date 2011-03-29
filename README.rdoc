@@ -144,12 +144,12 @@ The contents of the file should look like this (where the default values can be 
 
 From the command line, type: hp
 
-  hp account       # Manage/show account information.
+  hp account       # Manage accounts.
+  hp mode          # Manage modes.
+  hp db            # Manage PostgreSQL database.
   hp pass COMMAND  # Pass command to Heroku.
   hp console       # Open remote console.
   hp restart       # Restart remote server.
-  hp migrate       # Migrate remote database and restart server.
-  hp db            # Manage PostgreSQL database.
   hp version       # Show version.
   hp help          # Show this message.
 
