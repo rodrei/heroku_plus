@@ -25,10 +25,9 @@ module HerokuPlus
       load_modes
     end
 
-    desc "account", "Manage/show account information."
+    desc "account", "Manage accounts."
     map "-a" => :account
     method_option "switch", :aliases => "-s", :desc => "Switch to existing account.", :type => :string, :default => nil
-    method_option "mode", :aliases => "-m", :desc => "Switch account mode", :type => :string, :default => nil
     method_option "backup", :aliases => "-b", :desc => "Backup existing account to new account", :type => :string, :default => nil
     method_option "destroy", :aliases => "-d", :desc => "Delete existing account", :type => :string, :default => nil
     method_option "list", :aliases => "-l", :desc => "Show all configured accounts", :type => :boolean, :default => false
@@ -37,7 +36,6 @@ module HerokuPlus
       shell.say
       case
       when options[:switch] then switch(options[:switch])
-      when options[:mode] then switch_mode(options[:mode])
       when options[:backup] then backup(options[:backup])
       when options[:destroy] then destroy(options[:destroy])
       when options[:list] then @heroku_credentials.print_accounts
@@ -59,10 +57,18 @@ module HerokuPlus
       shell_with_echo "heroku console --app #{application}"
     end
 
-    desc "migrate", "Migrate remote database and restart server."
-    map "-m" => :migrate
-    def migrate
-      shell_with_echo "heroku rake db:migrate --app #{application} && heroku restart --app #{application}"
+    desc "mode", "Manage modes."
+    map "-m" => :mode
+    method_option "switch", :aliases => "-s", :desc => "Switch mode.", :type => :string, :default => nil
+    method_option "list", :aliases => "-l", :desc => "Show modes.", :type => :boolean, :default => false
+    def mode
+      shell.say
+      case
+      when options[:switch] then switch_mode(options[:switch])
+      when options[:list] then print_modes
+      else print_modes
+      end
+      shell.say
     end
 
     desc "restart", "Restart remote server."
@@ -72,11 +78,14 @@ module HerokuPlus
     end
 
     desc "db", "Manage PostgreSQL database."
+    method_option "migrate", :aliases => "-m", :desc => "Migrate remote PostgreSQL database and restart server.", :type => :boolean, :default => false
     method_option "backup", :aliases => "-b", :desc => "Backup remote PostgreSQL database.", :type => :boolean, :default => false
     method_option "import", :aliases => "-i", :desc => "Import latest remote PostgreSQL database into local database.", :type => :string, :default => "development"
     def db
       shell.say
       case
+      when options[:migrate] then
+        shell_with_echo "heroku rake db:migrate --app #{application} && heroku restart --app #{application}"
       when options[:backup] then
         shell_with_echo "heroku pgbackups:capture --expire --app #{application}"
         shell_with_echo "heroku pgbackups --app #{application}"
@@ -240,7 +249,13 @@ module HerokuPlus
         shell.say "\nCurrent Project Settings:"
         shell.say " - Mode: #{@settings[:mode]}"
         shell.say " - App:  #{application}"
-        shell.say "\nAvailable Modes:"
+      end
+    end
+
+    def print_modes
+      # Project
+      if File.exists? @git_config_file
+        shell.say "Available Modes:"
         if @modes.keys.empty?
           shell.say " - unknown"
         else
