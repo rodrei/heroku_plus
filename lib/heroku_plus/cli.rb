@@ -204,6 +204,8 @@ module HerokuPlus
         @settings[:mode] = mode
         save_settings @settings
         shell.say "Switched mode to: #{mode}."
+        shell.say
+        print_account
       rescue
         shell.say "ERROR: Invalid #{@settings_file} settings file."
       end
