@@ -11,7 +11,7 @@ module HerokuPlus
     def initialize args = [], options = {}, config = {}
       super
       
-      # Set defaults.
+      # Defaults.
       @shell = shell
       @heroku_credentials = Credentials.new shell
       @settings_file = File.join @heroku_credentials.home_path, "heroku_plus.yml"
@@ -27,12 +27,12 @@ module HerokuPlus
 
     desc "account", "Manage/show account information."
     map "-a" => :account
-    method_option "switch", :aliases => "-s", :banner => "Switch to existing account", :type => :string, :default => nil
-    method_option "mode", :aliases => "-m", :banner => "Switch account mode", :type => :string, :default => nil
-    method_option "backup", :aliases => "-b", :banner => "Backup existing account to new account", :type => :string, :default => nil
-    method_option "destroy", :aliases => "-d", :banner => "Delete existing account", :type => :string, :default => nil
-    method_option "list", :aliases => "-l", :banner => "Show all configured accounts", :type => :boolean, :default => false
-    method_option "info", :aliases => "-i", :banner => "Show current credentials and SSH identity", :type => :boolean, :default => false
+    method_option "switch", :aliases => "-s", :desc => "Switch to existing account.", :type => :string, :default => nil
+    method_option "mode", :aliases => "-m", :desc => "Switch account mode", :type => :string, :default => nil
+    method_option "backup", :aliases => "-b", :desc => "Backup existing account to new account", :type => :string, :default => nil
+    method_option "destroy", :aliases => "-d", :desc => "Delete existing account", :type => :string, :default => nil
+    method_option "list", :aliases => "-l", :desc => "Show all configured accounts", :type => :boolean, :default => false
+    method_option "info", :aliases => "-i", :desc => "Show current credentials and SSH identity", :type => :boolean, :default => false
     def account
       shell.say
       case
@@ -72,8 +72,8 @@ module HerokuPlus
     end
 
     desc "db", "Manage PostgreSQL database."
-    method_option "backup", :aliases => "-b", :banner => "Backup remote PostgreSQL database.", :type => :boolean, :default => false
-    method_option "import", :aliases => "-i", :banner => "Import latest remote PostgreSQL database into local database.", :type => :string, :default => "development"
+    method_option "backup", :aliases => "-b", :desc => "Backup remote PostgreSQL database.", :type => :boolean, :default => false
+    method_option "import", :aliases => "-i", :desc => "Import latest remote PostgreSQL database into local database.", :type => :string, :default => "development"
     def db
       shell.say
       case
