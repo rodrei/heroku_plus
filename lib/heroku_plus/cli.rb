@@ -174,6 +174,8 @@ module HerokuPlus
       return unless valid_argument?(account, "switch")
       @heroku_credentials.switch account
       @ssh_identity.switch account
+      shell.say
+      print_account
     end
 
     # Backup Heroku credentials and SSH identity for existing account.
