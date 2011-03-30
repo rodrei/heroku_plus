@@ -2,8 +2,12 @@
 
 * Fixed description display with command options.
 * Fixed the Ruby version requirement (namely Ruby 1.8.7) so that it is no longer required.
-* Added the printing of current account information after switching modes.
+* Added printing of current account information after switching modes.
+* Added printing of current account information after switching accounts.
+* Added graceful capture for bad URI exception when attempting to import a backup database that doesn't exist.
 * Moved mode management to a first level option (i.e. mode, -m). The original migrate (-m) option is now a sub-option of db.
+* Added the ability to pass a new mode to the mode (-m) option. Optional, of course. Defaults to listing available modes.
+* Cleaned up sub-option descriptions.
 
 = v3.0.0
 
