@@ -28,10 +28,10 @@ module HerokuPlus
     desc "account", "Manage accounts."
     map "-a" => :account
     method_option "switch", :aliases => "-s", :desc => "Switch to existing account.", :type => :string, :default => nil
-    method_option "backup", :aliases => "-b", :desc => "Backup existing account to new account", :type => :string, :default => nil
-    method_option "destroy", :aliases => "-d", :desc => "Delete existing account", :type => :string, :default => nil
-    method_option "list", :aliases => "-l", :desc => "Show all configured accounts", :type => :boolean, :default => false
-    method_option "info", :aliases => "-i", :desc => "Show current credentials and SSH identity", :type => :boolean, :default => false
+    method_option "backup", :aliases => "-b", :desc => "Backup existing account to new account.", :type => :string, :default => nil
+    method_option "destroy", :aliases => "-d", :desc => "Delete existing account.", :type => :string, :default => nil
+    method_option "list", :aliases => "-l", :desc => "Show all configured accounts.", :type => :boolean, :default => false
+    method_option "info", :aliases => "-i", :desc => "Show current credentials and SSH identity.", :type => :boolean, :default => false
     def account
       shell.say
       case

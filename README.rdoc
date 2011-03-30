@@ -156,10 +156,10 @@ From the command line, type: hp
 For more account options, type: hp help account
 
   -s, [--switch=SWITCH]    # Switch to existing account.
-  -d, [--destroy=DESTROY]  # Delete existing account
-  -b, [--backup=BACKUP]    # Backup existing account to new account
-  -l, [--list]             # Show all configured accounts
-  -i, [--info]             # Show current credentials and SSH identity
+  -b, [--backup=BACKUP]    # Backup existing account to new account.
+  -d, [--destroy=DESTROY]  # Delete existing account.
+  -l, [--list]             # Show all configured accounts.
+  -i, [--info]             # Show current credentials and SSH identity.
 
 For more mode options, type: hp help mode
 
