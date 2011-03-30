@@ -223,12 +223,16 @@ module HerokuPlus
       else
         answer = shell.yes? "You are about to perminently override all data in the local \"#{env}\" database. Do you wish to continue (y/n)?"
         if answer
-          heroku = Heroku::Client.new @heroku_credentials.login, @heroku_credentials.password
-          pg = PGBackups::Client.new heroku.config_vars(application)["PGBACKUPS_URL"]
-          database = "latest.dump"
-          shell_with_echo "curl -o #{database} '#{pg.get_latest_backup["public_url"]}'"
-          shell_with_echo "pg_restore --verbose --clean --no-acl --no-owner -h #{settings[env]['host']} -U #{settings[env]['username']} -d #{settings[env]['database']} #{database}"
-          shell_with_echo "rm -f #{database}"
+          begin
+            heroku = Heroku::Client.new @heroku_credentials.login, @heroku_credentials.password
+            pg = PGBackups::Client.new heroku.config_vars(application)["PGBACKUPS_URL"]
+            database = "latest.dump"
+            shell_with_echo "curl -o #{database} '#{pg.get_latest_backup["public_url"]}'"
+            shell_with_echo "pg_restore --verbose --clean --no-acl --no-owner -h #{settings[env]['host']} -U #{settings[env]['username']} -d #{settings[env]['database']} #{database}"
+            shell_with_echo "rm -f #{database}"
+          rescue URI::InvalidURIError
+            shell.say "ERROR: Invalid database URI. Does the backup exist?"
+          end
         else
           shell.say "Import aborted."
         end
