@@ -278,16 +278,16 @@ module HerokuPlus
       valid_file?(database_settings_file) ? YAML::load_file(database_settings_file) : {}
     end
     
-    # Answer whether argument is valid or not.
+    # Answer whether the argument is valid or not.
     # ==== Parameters
     # * +name+ - Required. The argument name.
     # * +type+ - Required. The argument type.
     def valid_argument? name, type
       if name.nil? || name.empty? || name == type
-        shell.say("ERROR: Argument must be supplied.") and false
+        shell.say("ERROR: Invalid/missing argument.") and false
       else
         true
       end
-    end    
+    end
   end
 end
