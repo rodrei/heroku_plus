@@ -114,7 +114,7 @@ module HerokuPlus
       if File.exists? @settings_file
         begin
           settings = YAML::load_file @settings_file
-          @settings = {:ssh_id => "id_rsa", :mode => "stage"}
+          @settings = {:ssh_id => "id_rsa", :mode => "stage", :suppress_switch_warnings => false}
           @settings.merge! settings.reject {|key, value| value.nil?}
         rescue
           shell.say "ERROR: Invalid settings: #{@settings_file}."
@@ -172,10 +172,25 @@ module HerokuPlus
     # * +account+ - Required. The account to switch to.
     def switch account
       return unless valid_argument?(account, "switch")
-      @heroku_credentials.switch account
-      @ssh_identity.switch account
-      shell.say
-      print_account
+      answer = true
+      if @settings[:suppress_switch_warnings]
+        shell.say "Switching to account \"#{account}\" will destroy the following files:"
+        shell.say " #{@heroku_credentials.file_path}"
+        shell.say " #{@ssh_identity.public_file}"
+        shell.say " #{@ssh_identity.private_file}"
+        shell.say "You can suppress this warning message by setting suppress_switch_warnings = true in your settings file: #{@settings_file}"
+        shell.say
+        answer = shell.yes? "Do you wish to continue (y/n)?"
+        shell.say
+      end
+      if answer
+        @heroku_credentials.switch account
+        @ssh_identity.switch account
+        shell.say
+        print_account
+      else
+        shell.say "Switch canceled."
+      end
     end
 
     # Backup Heroku credentials and SSH identity for existing account.
