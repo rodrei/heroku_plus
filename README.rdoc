@@ -36,6 +36,8 @@ The contents of the file should look like this (where the default values can be 
 In order to understand how this gem benefits you, you first need to understand how the Heroku gem determines what your accounts settings are (as {originally discussed here}[http://www.aeonscope.net/2010/02/22/managing-multiple-heroku-accounts/]).
 Heroku does this by pulling information from your Heroku credentials and your SSH settings.
 
+=== Overview
+
 The Heroku gem determines your setup from your Heroku credentials, SSH files, and your project Git config within your project directory. Example:
 
   ~/.heroku/credentials
@@ -176,15 +178,15 @@ From this point forward, you can switch between accounts as follows:
 5. Type: git push heroku master.
 6. Have a beer.
 
-Author
+= Author
 
 {Red Alchemist}[http://www.redalchemist.com]
 
-License
+= License
 
 Copyright (c) 2010 {Red Alchemist}[http://www.redalchemist.com].
 Read the LICENSE for details.
 
-History
+= History
 
 Read the CHANGELOG for details.
