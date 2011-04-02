@@ -5,32 +5,27 @@ adding multi-account support so you can switch between accounts using a single c
 gem also makes available all default Heroku commands enhanced with your current account settings. Once you get your feet wet this this gem, you'll
 soon find that you'll be using less of the _heroku_ command and more of the _hp_ command.
 
-= License
+= Features
 
-Copyright (c) 2010 {Red Alchemist}[http://www.redalchemist.com].
-See the included LICENSE for more info.
-
-= History
-
-See the CHANGELOG file for more info.
+* Multiple account management.
+* Remote database management.
+* Convenient common workflow commands for current application.
 
 = Requirements
 
 1. Mac OS X.
 2. Multiple Heroku[http://heroku.com] accounts.
 
-= Installation
+= Setup
 
 Type the following from the command line to install:
 
   gem install heroku_plus
 
-= Setup
+=== Overview
 
 In order to understand how this gem benefits you, you first need to understand how the Heroku gem determines what your accounts settings are (as {originally discussed here}[http://www.aeonscope.net/2010/02/22/managing-multiple-heroku-accounts/]).
-Heroku does this by pulling information from your Heroku credentials and your SSH settings. Lets take a closer look.
-
-=== Overview
+Heroku does this by pulling information from your Heroku credentials and your SSH settings.
 
 The Heroku gem determines your setup from your Heroku credentials, SSH files, and your project Git config within your project directory. Example:
 
@@ -184,6 +179,15 @@ From this point forward, you can switch between accounts as follows:
 5. Type: git push heroku master.
 6. Have a beer.
 
-= Contact/Feedback/Issues
+Author
 
-* {Red Alchemist}[http://www.redalchemist.com]
+{Red Alchemist}[http://www.redalchemist.com]
+
+License
+
+Copyright (c) 2010 {Red Alchemist}[http://www.redalchemist.com].
+Read the LICENSE for details.
+
+History
+
+Read the CHANGELOG for details.
