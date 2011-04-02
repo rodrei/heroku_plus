@@ -32,8 +32,8 @@ module HerokuPlus
 
     # Switch to existing SSH identity account.
     # ==== Parameters
-    # * +account+ - Required. The account name to switch to. Defaults to "unknown".
-    def switch account = "unknown"
+    # * +account+ - Required. The account to switch to.
+    def switch account
       old_private_file = File.join @ssh_home, @ssh_id
       old_public_file = File.join @ssh_home, @ssh_id + ".pub"
       new_private_file = File.join @ssh_home, account + ".identity"
@@ -51,8 +51,8 @@ module HerokuPlus
 
     # Backup SSH identity.
     # ==== Parameters
-    # * +account+ - Required. The account name for the backup. Defaults to "unknown".
-    def backup account = "unknown"
+    # * +account+ - Required. The account to backup.
+    def backup account
       backup_file File.join(@ssh_home, @ssh_id), File.join(@ssh_home, account + ".identity")
       backup_file File.join(@ssh_home, @ssh_id + ".pub"), File.join(@ssh_home, account + ".identity.pub")
       @shell.say "SSH identity backed up to account: #{account}."
@@ -60,7 +60,7 @@ module HerokuPlus
 
     # Destroy SSH identity.
     # ==== Parameters
-    # * +account+ - Required. The account to destroy. Defaults to "unknown".
+    # * +account+ - Required. The account to destroy.
     def destroy account
       destroy_file File.join(@ssh_home, account + ".identity")
       destroy_file File.join(@ssh_home, account + ".identity.pub")

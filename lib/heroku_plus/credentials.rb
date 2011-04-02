@@ -36,8 +36,8 @@ module HerokuPlus
     
     # Switch to existing Heroku account.
     # ==== Parameters
-    # * +account+ - Required. The account to switch to. Defaults to "unknown".
-    def switch account = "unknown"
+    # * +account+ - Required. The account to switch to.
+    def switch account
       account_file = File.join @heroku_home, account + '.' + CREDENTIALS
       if valid_file? account_file
         system "rm -f #{@credentials_file}"
@@ -50,15 +50,15 @@ module HerokuPlus
 
     # Backup Heroku account.
     # ==== Parameters
-    # * +account+ - Required. The account to backup. Defaults to "unknown".
-    def backup account = "unknown"
+    # * +account+ - Required. The account to backup.
+    def backup account
       backup_file @credentials_file, File.join(@heroku_home, account + '.' + CREDENTIALS)
       @shell.say "Heroku credentials backed up to account: #{account}."
     end
 
     # Destroy Heroku account.
     # ==== Parameters
-    # * +account+ - Required. The account to destroy. Defaults to "unknown".
+    # * +account+ - Required. The account to destroy.
     def destroy account
       destroy_file File.join(@heroku_home, account + '.' +  CREDENTIALS)
     end

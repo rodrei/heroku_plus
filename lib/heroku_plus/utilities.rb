@@ -23,7 +23,7 @@ module HerokuPlus
     # Answer whether the file exists and print an error message when not found.
     # ==== Parameters
     # * +file+ - Required. The file to validate.
-    # * +message+ - Optional. The error message to display if file not found.
+    # * +message+ - Optional. The error message. Defautls to "Invalid file".
     def valid_file? file, message = "Invalid file"
       File.exists?(file) ? true : (@shell.say("ERROR: #{message}: #{file}.") and false)
     end
