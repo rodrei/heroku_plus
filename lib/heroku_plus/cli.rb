@@ -25,7 +25,7 @@ module HerokuPlus
       load_modes
     end
 
-    desc "account", "Manage accounts."
+    desc "-a, [account]", "Manage accounts."
     map "-a" => :account
     method_option "switch", :aliases => "-s", :desc => "Switch to existing account.", :type => :string, :default => nil
     method_option "backup", :aliases => "-b", :desc => "Backup existing account to new account.", :type => :string, :default => nil
@@ -45,19 +45,19 @@ module HerokuPlus
       shell.say
     end
     
-    desc "pass COMMAND", "Pass command to Heroku."
+    desc "-p, [pass=COMMAND]", "Pass command to Heroku."
     map "-p" => :pass
     def pass command
       shell_with_echo "heroku", command, "--app", application
     end
 
-    desc "console", "Open remote console."
+    desc "-c, [console]", "Open remote console."
     map "-c" => :console
     def console
       shell_with_echo "heroku console --app #{application}"
     end
 
-    desc "mode", "Manage modes."
+    desc "-m, [mode]", "Manage modes."
     map "-m" => :mode
     method_option "switch", :aliases => "-s", :desc => "Switch mode.", :type => :string, :default => nil
     method_option "list", :aliases => "-l", :desc => "Show modes.", :type => :boolean, :default => false
@@ -72,7 +72,7 @@ module HerokuPlus
       shell.say
     end
 
-    desc "restart", "Restart remote server."
+    desc "-r, [restart]", "Restart remote server."
     map "-r" => :restart
     def restart
       shell_with_echo "heroku restart --app #{application}"
@@ -81,7 +81,7 @@ module HerokuPlus
     desc "db", "Manage PostgreSQL database."
     method_option "migrate", :aliases => "-m", :desc => "Migrate remote PostgreSQL database and restart server.", :type => :boolean, :default => false
     method_option "backup", :aliases => "-b", :desc => "Backup remote PostgreSQL database.", :type => :boolean, :default => false
-    method_option "import", :aliases => "-i", :desc => "Import latest remote PostgreSQL database into local database.", :type => :string, :default => "development"
+    method_option "import", :aliases => "-i", :desc => "Import latest remote PostgreSQL database into local database.", :type => :string, :lazy_default => "development"
     def db
       shell.say
       case
@@ -96,13 +96,13 @@ module HerokuPlus
       shell.say
     end
 
-    desc "version", "Show version."
+    desc "-v, [version]", "Show version."
     map "-v" => :version
     def version
       shell.say "Heroku Plus " + VERSION
     end
     
-    desc "help", "Show this message."
+    desc "-h, [help]", "Show this message."
     def help task = nil
       shell.say and super
     end
@@ -219,7 +219,7 @@ module HerokuPlus
     def import_remote_database env = "development"
       settings = database_settings
       if database_settings.empty?
-        shell.say "ERROR: Unable to load database setings for current app. Are you within the root folder of your Rails project?"
+        shell.say "ERROR: Unable to load database setings for current app. Are you within the root folder of a Rails project?"
       else
         answer = shell.yes? "You are about to perminently override all data in the local \"#{env}\" database. Do you wish to continue (y/n)?"
         if answer
