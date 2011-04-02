@@ -1,7 +1,8 @@
-= vx.x.x (master)
+= v3.1.0
 
 * Fixed description display with command options.
 * Fixed the Ruby version requirement (namely Ruby 1.8.7) so that it is no longer required.
+* Added account switching warnings - You can suppress these warnings via the heroku_plus.yml settings (see README).
 * Added printing of current account information after switching modes.
 * Added printing of current account information after switching accounts.
 * Added graceful capture for bad URI exception when attempting to import a backup database that doesn't exist.

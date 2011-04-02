@@ -2,7 +2,7 @@
 
 Managing multiple Heroku[http://heroku.com/] accounts is not easy with the Heroku gem. This gem builds upon capabilities found in the Heroku gem by
 adding multi-account support so you can switch between accounts using a single command line command. In addition to the multi-account support, this
-gem also makes available all default Heroku commands enhanced with your current account settings. Once you get your feet wet this this gem, you'll
+gem also allows native Heroku commands enhanced with your current account settings. Once you get your feet wet this this gem, you'll
 soon find that you'll be using less of the _heroku_ command and more of the _hp_ command.
 
 = Features
@@ -13,8 +13,8 @@ soon find that you'll be using less of the _heroku_ command and more of the _hp_
 
 = Requirements
 
-1. Mac OS X.
-2. Multiple Heroku[http://heroku.com] accounts.
+1. Mac OS X, Linux, or UNIX.
+2. A Heroku account.
 
 = Setup
 
@@ -22,7 +22,16 @@ Type the following from the command line to install:
 
   gem install heroku_plus
 
-=== Overview
+You can change the default settings for this gem by creating the following file:
+
+  ~/.heroku/heroku_plus.yml
+
+The contents of the file should look like this (where the default values can be changed to your liking):
+
+  --- 
+  :ssh_id: id_rsa
+  :mode: production
+  :suppress_switch_warnings: false
 
 In order to understand how this gem benefits you, you first need to understand how the Heroku gem determines what your accounts settings are (as {originally discussed here}[http://www.aeonscope.net/2010/02/22/managing-multiple-heroku-accounts/]).
 Heroku does this by pulling information from your Heroku credentials and your SSH settings.
@@ -94,7 +103,7 @@ To support multiple accounts, I suggest the following:
 
 After you have created your identities, send the identity of each public key to Heroku. For example:
 
-  hp -s account_1
+  hp -a -s account_1
   heroku keys:add ~/.ssh/account_1.identity.pub
 
 The easiest way to test if it is setup right is to SSH to Heroku:
@@ -123,30 +132,18 @@ This would then require you use the --app option when issuing a Heroku command. 
 While this gem alleviates the need to specify the --app command when dealing within multiple Heroku accounts, it does not help you when
 dealing with multiple branches within a single Heroku account. That, I leave to you.
 
-=== Default Gem Configuration
-
-You can change the default settings for this gem by creating the following file:
-
-  ~/.heroku/heroku_plus.yml
-
-The contents of the file should look like this (where the default values can be changed to your liking):
-
-  --- 
-  :ssh_id: id_rsa
-  :mode: production
-
 = Usage
 
 From the command line, type: hp
 
-  hp account       # Manage accounts.
-  hp mode          # Manage modes.
-  hp db            # Manage PostgreSQL database.
-  hp pass COMMAND  # Pass command to Heroku.
-  hp console       # Open remote console.
-  hp restart       # Restart remote server.
-  hp version       # Show version.
-  hp help          # Show this message.
+  hp -a, [account]       # Manage accounts.
+  hp -m, [mode]          # Manage modes.
+  hp db                  # Manage PostgreSQL database.
+  hp -p, [pass=COMMAND]  # Pass command to Heroku.
+  hp -c, [console]       # Open remote console.
+  hp -r, [restart]       # Restart remote server.
+  hp -v, [version]       # Show version.
+  hp -h, [help]          # Show this message.
 
 For more account options, type: hp help account
 

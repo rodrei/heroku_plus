@@ -173,7 +173,7 @@ module HerokuPlus
     def switch account
       return unless valid_argument?(account, "switch")
       answer = true
-      if @settings[:suppress_switch_warnings]
+      if @settings[:suppress_switch_warnings].to_s == "false"
         shell.say "Switching to account \"#{account}\" will destroy the following files:"
         shell.say " #{@heroku_credentials.file_path}"
         shell.say " #{@ssh_identity.public_file}"
