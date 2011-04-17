@@ -30,7 +30,7 @@ The contents of the file should look like this (where the default values can be 
 
   --- 
   :ssh_id: id_rsa
-  :mode: production
+  :mode: stage
   :suppress_switch_warnings: false
 
 In order to understand how this gem benefits you, you first need to understand how the Heroku gem determines what your accounts settings are (as {originally discussed here}[http://www.aeonscope.net/2010/02/22/managing-multiple-heroku-accounts/]).

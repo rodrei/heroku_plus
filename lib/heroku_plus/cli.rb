@@ -19,7 +19,6 @@ module HerokuPlus
 
       # Load and apply custom settings (if any).
       load_settings
-      @ssh_identity = Identity.new shell, @settings[:ssh_id]
 
       # Load modes and ensure current mode is set.
       load_modes
@@ -111,10 +110,14 @@ module HerokuPlus
     
     # Load settings.
     def load_settings
+      # Defaults.
+      @settings = {:ssh_id => "id_rsa", :mode => "stage", :suppress_switch_warnings => false}
+      @ssh_identity = Identity.new shell, @settings[:ssh_id]
+
+      # Settings File - Trumps defaults.
       if File.exists? @settings_file
         begin
           settings = YAML::load_file @settings_file
-          @settings = {:ssh_id => "id_rsa", :mode => "stage", :suppress_switch_warnings => false}
           @settings.merge! settings.reject {|key, value| value.nil?}
         rescue
           shell.say "ERROR: Invalid settings: #{@settings_file}."
