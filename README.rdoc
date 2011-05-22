@@ -28,7 +28,7 @@ You can change the default settings for this gem by creating the following file:
 
 The contents of the file should look like this (where the default values can be changed to your liking):
 
-  --- 
+  ---
   :ssh_id: id_rsa
   :mode: stage
   :suppress_switch_warnings: false
@@ -54,7 +54,7 @@ but lets make sure we understand the above list in detail so you can learn how t
 
 For each of your Heroku apps, change to the root directory of each app, and issue the following command:
 
-  git remote add heroku git@official.heroku.com:<your app>.git.
+  git remote add heroku git@official.heroku.com:<your app>.git
 
 This will allow you to push and deploy your changes back to the Heroku servers properly.
 
@@ -65,7 +65,7 @@ file that consists of your login (i.e. email address) and password. Example:
 
   example@test.com
   dafkk3$59dkagblk3k5l56
-	
+
 This file contains the credentials necessary to validate your machine with your Heroku account. To support multiple accounts, I suggest the following:
 
   ~/.heroku/credentials - The active/current account.
