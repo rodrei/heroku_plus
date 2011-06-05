@@ -78,18 +78,18 @@ module HerokuPlus
     end
 
     desc "db", "Manage PostgreSQL database."
-    method_option :migrate, :aliases => "-m", :desc => "Migrate remote PostgreSQL database and restart server.", :type => :boolean, :default => false
-    method_option :backup, :aliases => "-b", :desc => "Backup remote PostgreSQL database.", :type => :boolean, :default => false
-    method_option :import, :aliases => "-i", :desc => "Import latest remote PostgreSQL database into local database.", :type => :string, :lazy_default => "development"
+    method_option :migrate, :aliases => "-m", :desc => "Migrate remote PostgreSQL database (for current mode) and restart server.", :type => :boolean, :default => false
+    method_option :backup, :aliases => "-b", :desc => "Backup remote PostgreSQL database (for current mode).", :type => :boolean, :default => false
+    method_option :import, :aliases => "-i", :desc => "Import latest remote PostgreSQL database (for current mode) into local database.", :type => :string, :lazy_default => "development"
+    method_option :import_full, :aliases => "-I", :desc => "Import remote PostgreSQL database (for current mode) into local database by destroying local datbase, backing up and importing remote database, and running local migrations.", :type => :string, :lazy_default => "development"
     def db
       shell.say
       case
       when options[:migrate] then
         shell_with_echo "heroku rake db:migrate --app #{application} && heroku restart --app #{application}"
-      when options[:backup] then
-        shell_with_echo "heroku pgbackups:capture --expire --app #{application}"
-        shell_with_echo "heroku pgbackups --app #{application}"
+      when options[:backup] then backup_remote_database
       when options[:import] then import_remote_database(options[:import])
+      when options[:import_full] then import_remote_database(options[:import_full], :type => "full")
       else shell.say("Type 'hp help db' for usage.")
       end
       shell.say
@@ -231,29 +231,55 @@ module HerokuPlus
       end
     end
 
+    # Backup remote datbase.
+    def backup_remote_database
+      shell_with_echo "heroku pgbackups:capture --expire --app #{application}"
+      shell_with_echo "heroku pgbackups --app #{application}"
+    end
+
     # Import latest data from remote database into local database.
     # ==== Parameters
-    # * +env+ - Optional. The Rails environemnt to be used when importing remote data. Defaults to "development".
-    def import_remote_database env = "development"
-      settings = database_settings
-      if database_settings.empty?
-        shell.say "ERROR: Unable to load database setings for current app. Are you within the root folder of a Rails project?"
-      else
-        answer = shell.yes? "You are about to perminently override all data in the local \"#{env}\" database. Do you wish to continue (y/n)?"
-        if answer
-          begin
-            heroku = Heroku::Client.new @heroku_credentials.login, @heroku_credentials.password
-            pg = PGBackups::Client.new heroku.config_vars(application)["PGBACKUPS_URL"]
-            database = "latest.dump"
-            shell_with_echo "curl -o #{database} '#{pg.get_latest_backup["public_url"]}'"
-            shell_with_echo "pg_restore --verbose --clean --no-acl --no-owner -h #{settings[env]['host']} -U #{settings[env]['username']} -d #{settings[env]['database']} #{database}"
-            shell_with_echo "rm -f #{database}"
-          rescue URI::InvalidURIError
-            shell.say "ERROR: Invalid database URI. Does the backup exist?"
+    # * +env+ - Optional. The local environemnt to be used when importing remote data. Defaults to "development".
+    # ==== Options
+    # * +type+ - Optional. The type of database import. Defaults to "simple".
+    # * +skip_warnings+ - Optional. Skips warning messages and prompts. Defaults to false.
+    def import_remote_database env = "development", options = {:type => "simple"}
+      warning_message = "You are about to perminently override all data in the local \"#{env}\" database. Do you wish to continue (y/n)?"
+      case options[:type]
+      # Simple remote database import.
+      when "simple" then
+        settings = database_settings
+        if database_settings.empty?
+          shell.say "ERROR: Unable to load database setings for current app. Are you within the root folder of a Rails project?"
+        else
+          if options[:skip_warnings] || shell.yes?(warning_message)
+            begin
+              heroku = Heroku::Client.new @heroku_credentials.login, @heroku_credentials.password
+              pg = PGBackups::Client.new heroku.config_vars(application)["PGBACKUPS_URL"]
+              database = "latest.dump"
+              shell_with_echo "curl -o #{database} '#{pg.get_latest_backup["public_url"]}'"
+              shell_with_echo "pg_restore --verbose --clean --no-acl --no-owner -h #{settings[env]['host']} -U #{settings[env]['username']} -d #{settings[env]['database']} #{database}"
+              shell_with_echo "rm -f #{database}"
+            rescue URI::InvalidURIError
+              shell.say "ERROR: Invalid database URI. Does the backup exist?"
+            end
+          else
+            shell.say "Import aborted."
           end
+        end
+      # Full remote database import.
+      when "full" then
+        if options[:skip_warnings] || shell.yes?(warning_message)
+          shell_with_echo "rake db:drop"
+          shell_with_echo "rake db:create"
+          backup_remote_database
+          import_remote_database env, :type => "simple", :skip_warnings => true
+          shell_with_echo "rake db:migrate"
         else
           shell.say "Import aborted."
         end
+      else
+        shell.say "ERROR: Unable to determine import type."
       end
     end
 
