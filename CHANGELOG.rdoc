@@ -6,6 +6,7 @@
 * Added a new account files option (i.e. -a -f) for listing current account file information.
 * Removed credential and SSH file information from account info.
 * Upgraded Heroku gem requirements to version 2.0.0 and greater.
+* Renamed the suppress_switch_warnings setting to skip_switch_warnings. 
 
 = v3.1.0
 

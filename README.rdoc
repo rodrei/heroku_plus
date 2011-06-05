@@ -9,7 +9,7 @@ soon find that you'll be using less of the _heroku_ command and more of the _hp_
 
 * Multiple account management.
 * Remote database management.
-* Convenient common workflow commands for current application.
+* Convenient workflow commands for current application.
 
 = Requirements
 
@@ -31,7 +31,7 @@ The contents of the file should look like this (where the default values can be 
   ---
   :ssh_id: id_rsa
   :mode: stage
-  :suppress_switch_warnings: false
+  :skip_switch_warnings: false
 
 In order to understand how this gem benefits you, you first need to understand how the Heroku gem determines what your accounts settings are (as {originally discussed here}[http://www.aeonscope.net/2010/02/22/managing-multiple-heroku-accounts/]).
 Heroku does this by pulling information from your Heroku credentials and your SSH settings.
@@ -139,21 +139,22 @@ dealing with multiple branches within a single Heroku account. That, I leave to 
 From the command line, type: hp
 
   hp -a, [account]       # Manage accounts.
-  hp -m, [mode]          # Manage modes.
-  hp db                  # Manage PostgreSQL database.
-  hp -p, [pass=COMMAND]  # Pass command to Heroku.
   hp -c, [console]       # Open remote console.
+  hp -h, [help]          # Show this message.
+  hp -m, [mode]          # Manage modes.
+  hp -p, [pass=COMMAND]  # Pass command to Heroku.
   hp -r, [restart]       # Restart remote server.
   hp -v, [version]       # Show version.
-  hp -h, [help]          # Show this message.
+  hp db                  # Manage PostgreSQL database.
 
 For more account options, type: hp help account
 
-  -s, [--switch=SWITCH]    # Switch to existing account.
-  -b, [--backup=BACKUP]    # Backup existing account to new account.
-  -d, [--destroy=DESTROY]  # Delete existing account.
+  -f, [--files]            # Show current account files.
   -l, [--list]             # Show all configured accounts.
+  -b, [--backup=BACKUP]    # Backup existing account to new account.
   -i, [--info]             # Show current credentials and SSH identity.
+  -d, [--destroy=DESTROY]  # Delete existing account.
+  -s, [--switch=SWITCH]    # Switch to existing account.
 
 For more mode options, type: hp help mode
 
@@ -162,10 +163,10 @@ For more mode options, type: hp help mode
 
 For more db options, type: hp help db
 
-  -m, [--migrate]        # Migrate remote PostgreSQL database and restart server.
-  -b, [--backup]         # Backup remote PostgreSQL database.
-  -i, [--import=IMPORT]  # Import latest remote PostgreSQL database into local database.
-                         # Default: development
+  -m, [--migrate]                  # Migrate remote PostgreSQL database (for current mode) and restart server.
+  -i, [--import=IMPORT]            # Import latest remote PostgreSQL database (for current mode) into local database.
+  -b, [--backup]                   # Backup remote PostgreSQL database (for current mode).
+  -I, [--import-full=IMPORT_FULL]  # Import remote PostgreSQL database (for current mode) into local database by destroying local datbase, backing up and importing remote database, and running local migrations.
 
 = Workflow
 
