@@ -1,6 +1,7 @@
-= v3.1.1
+= vx.x.x (master)
 
 * Fixed bug with default settings not loading when heroku_plus.yml settings file is missing.
+* Upgraded Heroku gem requirements to version 2.0.0 and greater.
 
 = v3.1.0
 

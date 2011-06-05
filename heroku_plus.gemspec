@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
 
   s.rdoc_options << "CHANGELOG.rdoc"
   s.add_dependency "thor", "~> 0.14.0"
-  s.add_dependency "heroku", ">= 1.0.0"
+  s.add_dependency "heroku", ">= 2.0.0"
   s.add_development_dependency "rspec"
   s.add_development_dependency "aruba"
   s.executables << "hp"

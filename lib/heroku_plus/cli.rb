@@ -26,11 +26,11 @@ module HerokuPlus
 
     desc "-a, [account]", "Manage accounts."
     map "-a" => :account
-    method_option "switch", :aliases => "-s", :desc => "Switch to existing account.", :type => :string, :default => nil
-    method_option "backup", :aliases => "-b", :desc => "Backup existing account to new account.", :type => :string, :default => nil
-    method_option "destroy", :aliases => "-d", :desc => "Delete existing account.", :type => :string, :default => nil
-    method_option "list", :aliases => "-l", :desc => "Show all configured accounts.", :type => :boolean, :default => false
-    method_option "info", :aliases => "-i", :desc => "Show current credentials and SSH identity.", :type => :boolean, :default => false
+    method_option :switch, :aliases => "-s", :desc => "Switch to existing account.", :type => :string, :default => nil
+    method_option :backup, :aliases => "-b", :desc => "Backup existing account to new account.", :type => :string, :default => nil
+    method_option :destroy, :aliases => "-d", :desc => "Delete existing account.", :type => :string, :default => nil
+    method_option :list, :aliases => "-l", :desc => "Show all configured accounts.", :type => :boolean, :default => false
+    method_option :info, :aliases => "-i", :desc => "Show current credentials and SSH identity.", :type => :boolean, :default => false
     def account
       shell.say
       case
@@ -58,8 +58,8 @@ module HerokuPlus
 
     desc "-m, [mode]", "Manage modes."
     map "-m" => :mode
-    method_option "switch", :aliases => "-s", :desc => "Switch mode.", :type => :string, :default => nil
-    method_option "list", :aliases => "-l", :desc => "Show modes.", :type => :boolean, :default => false
+    method_option :switch, :aliases => "-s", :desc => "Switch mode.", :type => :string, :default => nil
+    method_option :list, :aliases => "-l", :desc => "Show modes.", :type => :boolean, :default => false
     def mode mode = nil
       shell.say
       case
@@ -78,9 +78,9 @@ module HerokuPlus
     end
 
     desc "db", "Manage PostgreSQL database."
-    method_option "migrate", :aliases => "-m", :desc => "Migrate remote PostgreSQL database and restart server.", :type => :boolean, :default => false
-    method_option "backup", :aliases => "-b", :desc => "Backup remote PostgreSQL database.", :type => :boolean, :default => false
-    method_option "import", :aliases => "-i", :desc => "Import latest remote PostgreSQL database into local database.", :type => :string, :lazy_default => "development"
+    method_option :migrate, :aliases => "-m", :desc => "Migrate remote PostgreSQL database and restart server.", :type => :boolean, :default => false
+    method_option :backup, :aliases => "-b", :desc => "Backup remote PostgreSQL database.", :type => :boolean, :default => false
+    method_option :import, :aliases => "-i", :desc => "Import latest remote PostgreSQL database into local database.", :type => :string, :lazy_default => "development"
     def db
       shell.say
       case
@@ -289,11 +289,6 @@ module HerokuPlus
           @modes.each_key {|key| shell.say " - Mode: #{key}, App: #{@modes[key][:app]}"}
         end
       end
-    end
-
-    # Print version information.
-    def print_version
-      shell.say "Heroku Plus " + VERSION
     end
 
     # Answer database settings for current application.
