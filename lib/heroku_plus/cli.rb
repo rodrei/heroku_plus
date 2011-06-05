@@ -307,6 +307,9 @@ module HerokuPlus
 
     # Print available modes.
     def print_modes
+      shell.say "Current Mode"
+      shell.say " - #{@settings[:mode]}"
+      
       if File.exists? @git_config_file
         shell.say "Available Modes:"
         if @modes.keys.empty?
