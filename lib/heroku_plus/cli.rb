@@ -31,6 +31,7 @@ module HerokuPlus
     method_option :destroy, :aliases => "-d", :desc => "Delete existing account.", :type => :string, :default => nil
     method_option :list, :aliases => "-l", :desc => "Show all configured accounts.", :type => :boolean, :default => false
     method_option :info, :aliases => "-i", :desc => "Show current credentials and SSH identity.", :type => :boolean, :default => false
+    method_option :files, :aliases => "-f", :desc => "Show current account files.", :type => :boolean, :default => false
     def account
       shell.say
       case
@@ -38,8 +39,9 @@ module HerokuPlus
       when options[:backup] then backup(options[:backup])
       when options[:destroy] then destroy(options[:destroy])
       when options[:list] then @heroku_credentials.print_accounts
-      when options[:info] then print_account
-      else print_account
+      when options[:info] then print_account_info
+      when options[:files] then print_account_files
+      else print_account_info
       end
       shell.say
     end
@@ -190,7 +192,7 @@ module HerokuPlus
         @heroku_credentials.switch account
         @ssh_identity.switch account
         shell.say
-        print_account
+        print_account_info
       else
         shell.say "Switch canceled."
       end
@@ -225,7 +227,7 @@ module HerokuPlus
         save_settings @settings
         shell.say "Switched mode to: #{mode}."
         shell.say
-        print_account
+        print_account_info
       rescue
         shell.say "ERROR: Invalid #{@settings_file} settings file."
       end
@@ -283,16 +285,13 @@ module HerokuPlus
       end
     end
 
-    # Print active account information.
-    def print_account
+    # Print current account information.
+    def print_account_info
       # Account
-      if valid_file?(@heroku_credentials.file_path) && valid_file?(@ssh_identity.public_file) && valid_file?(@ssh_identity.private_file)
+      if valid_file?(@heroku_credentials.file_path)
         shell.say "Current Account Settings:"
-        shell.say " - Login:            #{@heroku_credentials.login}" 
-        shell.say " - Password:         #{'*' * @heroku_credentials.password.size}"
-        shell.say " - Credentials:      #{@heroku_credentials.file_path}"
-        shell.say " - SSH ID (private): #{@ssh_identity.private_file}\n"
-        shell.say " - SSH ID (public):  #{@ssh_identity.public_file}"
+        shell.say " - Login:    #{@heroku_credentials.login}" 
+        shell.say " - Password: #{'*' * @heroku_credentials.password.size}"
       else
         shell.say "ERROR: Heroku account credentials and/or SSH identity not found!"
       end
@@ -302,6 +301,17 @@ module HerokuPlus
         shell.say "\nCurrent Project Settings:"
         shell.say " - Mode: #{@settings[:mode]}"
         shell.say " - App:  #{application}"
+      end
+    end
+
+    # Print associated files for current account.
+    def print_account_files
+      if valid_file?(@heroku_credentials.file_path) && valid_file?(@ssh_identity.public_file) && valid_file?(@ssh_identity.private_file)
+        shell.say " - Credentials:      #{@heroku_credentials.file_path}"
+        shell.say " - SSH ID (private): #{@ssh_identity.private_file}\n"
+        shell.say " - SSH ID (public):  #{@ssh_identity.public_file}"
+      else
+        shell.say "ERROR: Heroku account credentials not found!"
       end
     end
 
