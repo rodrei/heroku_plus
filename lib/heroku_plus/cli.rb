@@ -113,7 +113,7 @@ module HerokuPlus
     # Load settings.
     def load_settings
       # Defaults.
-      @settings = {:ssh_id => "id_rsa", :mode => "stage", :suppress_switch_warnings => false}
+      @settings = {:ssh_id => "id_rsa", :mode => "stage", :skip_switch_warnings => false}
       @ssh_identity = Identity.new shell, @settings[:ssh_id]
 
       # Settings File - Trumps defaults.
@@ -178,12 +178,12 @@ module HerokuPlus
     def switch account
       return unless valid_argument?(account, "switch")
       answer = true
-      if @settings[:suppress_switch_warnings].to_s == "false"
+      if @settings[:skip_switch_warnings].to_s == "false"
         shell.say "Switching to account \"#{account}\" will destroy the following files:"
         shell.say " #{@heroku_credentials.file_path}"
         shell.say " #{@ssh_identity.public_file}"
         shell.say " #{@ssh_identity.private_file}"
-        shell.say "You can suppress this warning message by setting suppress_switch_warnings = true in your settings file: #{@settings_file}"
+        shell.say "You can suppress this warning message by setting skip_switch_warnings = true in your settings file: #{@settings_file}"
         shell.say
         answer = shell.yes? "Do you wish to continue (y/n)?"
         shell.say

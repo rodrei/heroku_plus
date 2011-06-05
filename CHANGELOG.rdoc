@@ -1,6 +1,10 @@
-= vx.x.x (master)
+= v3.2.0
 
 * Fixed bug with default settings not loading when heroku_plus.yml settings file is missing.
+* Added the a new database import mode (i.e. db -I) that does a full backup, import, and migration of the remote to local database.
+* Added current mode to print when displaying available modes.
+* Added a new account files option (i.e. -a -f) for listing current account file information.
+* Removed credential and SSH file information from account info.
 * Upgraded Heroku gem requirements to version 2.0.0 and greater.
 
 = v3.1.0

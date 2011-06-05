@@ -24,12 +24,12 @@ module HerokuPlus
       @credentials_file
     end
     
-    # Answer the current login.
+    # Answer current login.
     def login
       open(@credentials_file, 'r').readlines.first.strip if valid_file?(@credentials_file)
     end
 
-    # Answer the current password.
+    # Answer current password.
     def password
       open(@credentials_file, 'r').readlines.last.strip if valid_file?(@credentials_file)
     end    
