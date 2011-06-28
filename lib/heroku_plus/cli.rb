@@ -84,6 +84,7 @@ module HerokuPlus
     method_option :backup, :aliases => "-b", :desc => "Backup remote PostgreSQL database (for current mode).", :type => :boolean, :default => false
     method_option :import, :aliases => "-i", :desc => "Import latest remote PostgreSQL database (for current mode) into local database.", :type => :string, :lazy_default => "development"
     method_option :import_full, :aliases => "-I", :desc => "Import remote PostgreSQL database (for current mode) into local database by destroying local datbase, backing up and importing remote database, and running local migrations.", :type => :string, :lazy_default => "development"
+    method_option :reset, :aliases => "-R", :desc => "Reset and destroy all data in remote PostgreSQL database (for current mode).", :type => :string, :lazy_default => "SHARED_DATABASE_URL"
     def db
       shell.say
       case
@@ -92,6 +93,7 @@ module HerokuPlus
       when options[:backup] then backup_remote_database
       when options[:import] then import_remote_database(options[:import])
       when options[:import_full] then import_remote_database(options[:import_full], :type => "full")
+      when options[:reset] then reset_remote_database(options[:reset])
       else shell.say("Type 'hp help db' for usage.")
       end
       shell.say
@@ -113,10 +115,14 @@ module HerokuPlus
     # Load settings.
     def load_settings
       # Defaults.
-      @settings = {:ssh_id => "id_rsa", :mode => "stage", :skip_switch_warnings => false}
+      @settings = {
+        :ssh_id => "id_rsa",
+        :mode => "stage",
+        :skip_switch_warnings => false,
+        :pg_restore_options => "-O -w"
+      }
       @ssh_identity = Identity.new shell, @settings[:ssh_id]
-
-      # Settings File - Trumps defaults.
+      # Load settings file - Trumps defaults.
       if File.exists? @settings_file
         begin
           settings = YAML::load_file @settings_file
@@ -233,7 +239,7 @@ module HerokuPlus
       end
     end
 
-    # Backup remote datbase.
+    # Backs up remote datbase.
     def backup_remote_database
       shell_with_echo "heroku pgbackups:capture --expire --app #{application}"
       shell_with_echo "heroku pgbackups --app #{application}"
@@ -250,8 +256,8 @@ module HerokuPlus
       case options[:type]
       # Simple remote database import.
       when "simple" then
-        settings = database_settings
-        if database_settings.empty?
+        db_settings = database_settings
+        if db_settings.empty?
           shell.say "ERROR: Unable to load database setings for current app. Are you within the root folder of a Rails project?"
         else
           if options[:skip_warnings] || shell.yes?(warning_message)
@@ -260,7 +266,13 @@ module HerokuPlus
               pg = PGBackups::Client.new heroku.config_vars(application)["PGBACKUPS_URL"]
               database = "latest.dump"
               shell_with_echo "curl -o #{database} '#{pg.get_latest_backup["public_url"]}'"
-              shell_with_echo "pg_restore --verbose --clean --no-acl --no-owner -h #{settings[env]['host']} -U #{settings[env]['username']} -d #{settings[env]['database']} #{database}"
+              # Default PostgreSQL restore settings.
+              # -O = Don't restore original data ownership.
+              # -w = Don't prompt for a password.
+              # -h = The server host name (via the "host" database.yml setting for current mode).
+              # -U = The user name to connect as (via the "username" database.yml setting for current mode).
+              # -d = The database name (via the "database" database.yml setting for current mode).
+              shell_with_echo "pg_restore #{@settings[:pg_restore_options]} -h #{db_settings[env]['host']} -U #{db_settings[env]['username']} -d #{db_settings[env]['database']} #{database}"
               shell_with_echo "rm -f #{database}"
             rescue URI::InvalidURIError
               shell.say "ERROR: Invalid database URI. Does the backup exist?"
@@ -283,6 +295,11 @@ module HerokuPlus
       else
         shell.say "ERROR: Unable to determine import type."
       end
+    end
+    
+    # Resets remote datbase.
+    def reset_remote_database database
+      shell_with_echo "heroku pg:reset #{database} --app #{application}"
     end
 
     # Print current account information.
