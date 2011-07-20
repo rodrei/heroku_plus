@@ -2,15 +2,15 @@ module HerokuPlus
   # Manages SSH identities.
   class Identity
     include HerokuPlus::Utilties
-    
+
     IDENTITY = "identity"
 
     # Initialize and configure defaults.
     # ==== Parameters
-    # * +shell+ - Required. The Thor shell.
+    # * +cli+ - Required. The command line interface (assumes Thor-like behavior).
     # * +id+ - Optional. The SSH ID. Defaults to "id_rsa".
-    def initialize shell, id = "id_rsa"
-      @shell = shell
+    def initialize cli, id = "id_rsa"
+      @cli = cli
       @ssh_home = File.join ENV["HOME"], ".ssh"
       @ssh_id = id
     end
@@ -39,13 +39,13 @@ module HerokuPlus
       new_private_file = File.join @ssh_home, account + ".identity"
       new_public_file = File.join @ssh_home, account + ".identity.pub"
       if valid_file?(new_private_file) && valid_file?(new_public_file)
-        system "rm -f #{old_private_file}"
-        system "rm -f #{old_public_file}"
-        system "ln -s #{new_private_file} #{old_private_file}"
-        system "ln -s #{new_public_file} #{old_public_file}"
-        @shell.say "SSH identity switched to account: #{account}."
+        `rm -f #{old_private_file}`
+        `rm -f #{old_public_file}`
+        `ln -s #{new_private_file} #{old_private_file}`
+        `ln -s #{new_public_file} #{old_public_file}`
+        @cli.say_info "SSH identity switched to account: #{account}."
       else
-        @shell.say "ERROR: SSH identity does not exist!"
+        @cli.say_error "SSH identity does not exist!"
       end
     end
 
@@ -55,7 +55,7 @@ module HerokuPlus
     def backup account
       backup_file File.join(@ssh_home, @ssh_id), File.join(@ssh_home, account + ".identity")
       backup_file File.join(@ssh_home, @ssh_id + ".pub"), File.join(@ssh_home, account + ".identity.pub")
-      @shell.say "SSH identity backed up to account: #{account}."
+      @cli.say_info "SSH identity backed up to account: #{account}."
     end  
 
     # Destroy SSH identity.

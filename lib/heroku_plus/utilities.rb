@@ -1,12 +1,13 @@
 module HerokuPlus
   module Utilties
-    # Executes and echos the given command line arguments.
-    # ==== Parameters
-    # * +args+ - Required. The command line to be executed.
-    def shell_with_echo *args
-      command = args * ' '
-      @shell.say command
-      system command
+    # Prints info to the console.
+    def say_info message
+      say_status :info, message, :white
+    end
+
+    # Prints an error to the console.
+    def say_error message
+      say_status :error, message, :red
     end
 
     # Answer the substring of the given string within a start and end delimiter range.
@@ -37,13 +38,13 @@ module HerokuPlus
         if File.exists? new_file
           answer = @shell.yes? "File exists: \"#{new_file}\". Do you wish to replace the existing file (y/n)?"
           if answer
-            system "cp #{old_file} #{new_file}"
+            `cp #{old_file} #{new_file}`
             @shell.say "Replaced: #{new_file}"
           else
             @shell.say "Backup aborted."
           end
         else
-          system "cp #{old_file} #{new_file}"
+          `cp #{old_file} #{new_file}`
           @shell.say "Created: #{new_file}"
         end
       else
@@ -58,7 +59,7 @@ module HerokuPlus
       if valid_file? file
         answer = @shell.yes? "You are about to perminently destroy file: #{file}. Do you wish to continue (y/n)?"
         if answer
-          system "rm -f #{file}"
+          `rm -f #{file}`
           @shell.say "Destroyed: #{file}"
         else
           @shell.say "Destroy aborted."

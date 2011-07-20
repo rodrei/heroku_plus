@@ -1,10 +1,12 @@
 require "yaml"
 require "thor"
+require "thor/actions"
 require "heroku"
 require "pgbackups/client"
 
 module HerokuPlus
   class CLI < Thor
+    include Thor::Actions
     include HerokuPlus::Utilties
 
     # Initialize.
@@ -12,8 +14,7 @@ module HerokuPlus
       super
       
       # Defaults.
-      @shell = shell
-      @heroku_credentials = Credentials.new shell
+      @heroku_credentials = Credentials.new self
       @settings_file = File.join @heroku_credentials.home_path, "heroku_plus.yml"
       @git_config_file = ".git/config"
 
@@ -33,7 +34,7 @@ module HerokuPlus
     method_option :info, :aliases => "-i", :desc => "Show current credentials and SSH identity.", :type => :boolean, :default => false
     method_option :files, :aliases => "-f", :desc => "Show current account files.", :type => :boolean, :default => false
     def account
-      shell.say
+      say
       case
       when options[:switch] then switch(options[:switch])
       when options[:backup] then backup(options[:backup])
@@ -43,19 +44,19 @@ module HerokuPlus
       when options[:files] then print_account_files
       else print_account_info
       end
-      shell.say
+      say
     end
     
     desc "-p, [pass=COMMAND]", "Pass command to Heroku."
     map "-p" => :pass
     def pass command
-      shell_with_echo "heroku", command, "--app", application
+      run "heroku #{command} --app #{application}"
     end
 
     desc "-c, [console]", "Open remote console."
     map "-c" => :console
     def console
-      shell_with_echo "heroku console --app #{application}"
+      run "heroku console --app #{application}"
     end
 
     desc "-m, [mode]", "Manage modes."
@@ -63,20 +64,20 @@ module HerokuPlus
     method_option :switch, :aliases => "-s", :desc => "Switch mode.", :type => :string, :default => nil
     method_option :list, :aliases => "-l", :desc => "Show modes.", :type => :boolean, :default => false
     def mode mode = nil
-      shell.say
+      say
       case
       when mode then switch_mode(mode)
       when options[:switch] then switch_mode(options[:switch])
       when options[:list] then print_modes
       else print_modes
       end
-      shell.say
+      say
     end
 
     desc "-r, [restart]", "Restart remote server."
     map "-r" => :restart
     def restart
-      shell_with_echo "heroku restart --app #{application}"
+      run "heroku restart --app #{application}"
     end
 
     desc "db", "Manage PostgreSQL database."
@@ -86,17 +87,17 @@ module HerokuPlus
     method_option :import_full, :aliases => "-I", :desc => "Import remote PostgreSQL database (for current mode) into local database by destroying local datbase, backing up and importing remote database, and running local migrations.", :type => :string, :lazy_default => "development"
     method_option :reset, :aliases => "-R", :desc => "Reset and destroy all data in remote PostgreSQL database (for current mode).", :type => :string, :lazy_default => "SHARED_DATABASE_URL"
     def db
-      shell.say
+      say
       case
       when options[:migrate] then
-        shell_with_echo "heroku rake db:migrate --app #{application} && heroku restart --app #{application}"
+        run "heroku rake db:migrate --app #{application} && heroku restart --app #{application}"
       when options[:backup] then backup_remote_database
       when options[:import] then import_remote_database(options[:import])
       when options[:import_full] then import_remote_database(options[:import_full], :type => "full")
       when options[:reset] then reset_remote_database(options[:reset])
-      else shell.say("Type 'hp help db' for usage.")
+      else say("Type 'hp help db' for usage.")
       end
-      shell.say
+      say
     end
 
     desc "-e, [edit]", "Edit settings in default editor (as set via the $EDITOR environment variable)."
@@ -108,12 +109,12 @@ module HerokuPlus
     desc "-v, [version]", "Show version."
     map "-v" => :version
     def version
-      shell.say "Heroku Plus " + VERSION
+      say "Heroku Plus " + VERSION
     end
     
     desc "-h, [help]", "Show this message."
     def help task = nil
-      shell.say and super
+      say and super
     end
 
     protected
@@ -127,14 +128,14 @@ module HerokuPlus
         :skip_switch_warnings => false,
         :pg_restore_options => "-O -w"
       }
-      @ssh_identity = Identity.new shell, @settings[:ssh_id]
+      @ssh_identity = Identity.new self, @settings[:ssh_id]
       # Load settings file - Trumps defaults.
       if File.exists? @settings_file
         begin
           settings = YAML::load_file @settings_file
           @settings.merge! settings.reject {|key, value| value.nil?}
         rescue
-          shell.say "ERROR: Invalid settings: #{@settings_file}."
+          say_error "Invalid settings: #{@settings_file}."
         end
       end
     end
@@ -175,7 +176,7 @@ module HerokuPlus
           end
         end
       else
-        shell.say "ERROR: Could not load Git configuration file for current project: #{@git_config_file}"
+        say_error "Could not load Git configuration file for current project: #{@git_config_file}"
       end
     end
 
@@ -191,22 +192,22 @@ module HerokuPlus
       return unless valid_argument?(account, "switch")
       answer = true
       if @settings[:skip_switch_warnings].to_s == "false"
-        shell.say "Switching to account \"#{account}\" will destroy the following files:"
-        shell.say " #{@heroku_credentials.file_path}"
-        shell.say " #{@ssh_identity.public_file}"
-        shell.say " #{@ssh_identity.private_file}"
-        shell.say "You can suppress this warning message by setting skip_switch_warnings = true in your settings file: #{@settings_file}"
-        shell.say
+        say_info "Switching to account \"#{account}\" will destroy the following files:"
+        say_info " #{@heroku_credentials.file_path}"
+        say_info " #{@ssh_identity.public_file}"
+        say_info " #{@ssh_identity.private_file}"
+        say_info "You can suppress this warning message by setting skip_switch_warnings = true in your settings file: #{@settings_file}"
+        say
         answer = shell.yes? "Do you wish to continue (y/n)?"
-        shell.say
+        say
       end
       if answer
         @heroku_credentials.switch account
         @ssh_identity.switch account
-        shell.say
+        say
         print_account_info
       else
-        shell.say "Switch canceled."
+        say_info "Switch canceled."
       end
     end
 
@@ -224,7 +225,7 @@ module HerokuPlus
     # * +account+ - Required. The account to destroy.
     def destroy account
       return unless valid_argument?(account, "destroy")
-      shell.say "Destroying Heroku credentials and SSH identities..."
+      say_info "Destroying Heroku credentials and SSH identities..."
       @heroku_credentials.destroy account
       @ssh_identity.destroy account
     end
@@ -237,18 +238,18 @@ module HerokuPlus
         settings = YAML::load_file @settings_file
         @settings[:mode] = mode
         save_settings @settings
-        shell.say "Switched mode to: #{mode}."
-        shell.say
+        say_info "Switched mode to: #{mode}."
+        say
         print_account_info
       rescue
-        shell.say "ERROR: Invalid #{@settings_file} settings file."
+        say_error "Invalid #{@settings_file} settings file."
       end
     end
 
     # Backs up remote datbase.
     def backup_remote_database
-      shell_with_echo "heroku pgbackups:capture --expire --app #{application}"
-      shell_with_echo "heroku pgbackups --app #{application}"
+      run "heroku pgbackups:capture --expire --app #{application}"
+      run "heroku pgbackups --app #{application}"
     end
 
     # Import latest data from remote database into local database.
@@ -264,91 +265,92 @@ module HerokuPlus
       when "simple" then
         db_settings = database_settings
         if db_settings.empty?
-          shell.say "ERROR: Unable to load database setings for current app. Are you within the root folder of a Rails project?"
+          say_error "Unable to load database setings for current app. Are you within the root folder of a Rails project?"
         else
           if options[:skip_warnings] || shell.yes?(warning_message)
             begin
               heroku = Heroku::Client.new @heroku_credentials.login, @heroku_credentials.password
               pg = PGBackups::Client.new heroku.config_vars(application)["PGBACKUPS_URL"]
               database = "latest.dump"
-              shell_with_echo "curl -o #{database} '#{pg.get_latest_backup["public_url"]}'"
+              run "curl -o #{database} '#{pg.get_latest_backup["public_url"]}'"
               # Default PostgreSQL restore settings.
               # -O = Don't restore original data ownership.
               # -w = Don't prompt for a password.
               # -h = The server host name (via the "host" database.yml setting for current mode).
               # -U = The user name to connect as (via the "username" database.yml setting for current mode).
               # -d = The database name (via the "database" database.yml setting for current mode).
-              shell_with_echo "pg_restore #{@settings[:pg_restore_options]} -h #{db_settings[env]['host']} -U #{db_settings[env]['username']} -d #{db_settings[env]['database']} #{database}"
-              shell_with_echo "rm -f #{database}"
+              run "pg_restore #{@settings[:pg_restore_options]} -h #{db_settings[env]['host']} -U #{db_settings[env]['username']} -d #{db_settings[env]['database']} #{database}"
+              run "rm -f #{database}"
             rescue URI::InvalidURIError
-              shell.say "ERROR: Invalid database URI. Does the backup exist?"
+              say_error "Invalid database URI. Does the backup exist?"
             end
           else
-            shell.say "Import aborted."
+            say_info "Import aborted."
           end
         end
       # Full remote database import.
       when "full" then
         if options[:skip_warnings] || shell.yes?(warning_message)
-          shell_with_echo "rake db:drop"
-          shell_with_echo "rake db:create"
+          run "rake db:drop"
+          run "rake db:create"
           backup_remote_database
           import_remote_database env, :type => "simple", :skip_warnings => true
-          shell_with_echo "rake db:migrate"
+          run "rake db:migrate"
         else
-          shell.say "Import aborted."
+          say_info "Import aborted."
         end
       else
-        shell.say "ERROR: Unable to determine import type."
+        say_error "Unable to determine import type."
       end
     end
     
     # Resets remote datbase.
     def reset_remote_database database
-      shell_with_echo "heroku pg:reset #{database} --app #{application}"
+      run "heroku pg:reset #{database} --app #{application}"
     end
 
     # Print current account information.
     def print_account_info
       # Account
       if valid_file?(@heroku_credentials.file_path)
-        shell.say "Current Account Settings:"
-        shell.say " - Login:    #{@heroku_credentials.login}" 
-        shell.say " - Password: #{'*' * @heroku_credentials.password.size}"
+        say_info "Current Account Settings:"
+        say_info " - Login:    #{@heroku_credentials.login}" 
+        say_info " - Password: #{'*' * @heroku_credentials.password.size}"
       else
-        shell.say "ERROR: Heroku account credentials and/or SSH identity not found!"
+        say_error "Heroku account credentials and/or SSH identity not found!"
       end
 
       # Project
       if File.exists? @git_config_file
-        shell.say "\nCurrent Project Settings:"
-        shell.say " - Mode: #{@settings[:mode]}"
-        shell.say " - App:  #{application}"
+        say
+        say_info "Current Project Settings:"
+        say_info " - Mode: #{@settings[:mode]}"
+        say_info " - App:  #{application}"
       end
     end
 
     # Print associated files for current account.
     def print_account_files
       if valid_file?(@heroku_credentials.file_path) && valid_file?(@ssh_identity.public_file) && valid_file?(@ssh_identity.private_file)
-        shell.say " - Credentials:      #{@heroku_credentials.file_path}"
-        shell.say " - SSH ID (private): #{@ssh_identity.private_file}\n"
-        shell.say " - SSH ID (public):  #{@ssh_identity.public_file}"
+        say_info " - Credentials:      #{@heroku_credentials.file_path}"
+        say_info " - SSH ID (private): #{@ssh_identity.private_file}\n"
+        say_info " - SSH ID (public):  #{@ssh_identity.public_file}"
       else
-        shell.say "ERROR: Heroku account credentials not found!"
+        say_error "Heroku account credentials not found!"
       end
     end
 
     # Print available modes.
     def print_modes
-      shell.say "Current Mode"
-      shell.say " - #{@settings[:mode]}"
+      say_info "Current Mode:"
+      say_info " - #{@settings[:mode]}"
       
       if File.exists? @git_config_file
-        shell.say "Available Modes:"
+        say_info "Available Modes:"
         if @modes.keys.empty?
-          shell.say " - unknown"
+          say_info " - unknown"
         else
-          @modes.each_key {|key| shell.say " - Mode: #{key}, App: #{@modes[key][:app]}"}
+          @modes.each_key {|key| say_info " - Mode: #{key}, App: #{@modes[key][:app]}"}
         end
       end
     end
@@ -365,7 +367,7 @@ module HerokuPlus
     # * +type+ - Required. The argument type.
     def valid_argument? name, type
       if name.nil? || name.empty? || name == type
-        shell.say("ERROR: Invalid/missing argument.") and false
+        say_error("Invalid/missing argument.") and false
       else
         true
       end

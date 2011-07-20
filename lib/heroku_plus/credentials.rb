@@ -2,14 +2,14 @@ module HerokuPlus
   # Manages Heroku credentials.
   class Credentials
     include HerokuPlus::Utilties
-    
+
     CREDENTIALS = "credentials"
     
     # Initialize and configure defaults.
     # ==== Parameters
-    # * +shell+ - Required. The Thor shell.
-    def initialize shell
-      @shell = shell
+    # * +cli+ - Required. The command line interface (assumes Thor-like behavior).
+    def initialize cli
+      @cli = cli
       @heroku_home = File.join ENV["HOME"], ".heroku"
       @credentials_file = File.join @heroku_home, CREDENTIALS
     end
@@ -40,11 +40,11 @@ module HerokuPlus
     def switch account
       account_file = File.join @heroku_home, account + '.' + CREDENTIALS
       if valid_file? account_file
-        system "rm -f #{@credentials_file}"
-        system "ln -s #{account_file} #{@credentials_file}"
-        @shell.say "Heroku credentials switched to account: #{account}."
+        `rm -f #{@credentials_file}`
+        `ln -s #{account_file} #{@credentials_file}`
+        @cli.say_info "Heroku credentials switched to account: #{account}"
       else
-        @shell.say "ERROR: Heroku account does not exist!"
+        @cli.say_error "Heroku account does not exist!"
       end
     end
 
@@ -53,7 +53,7 @@ module HerokuPlus
     # * +account+ - Required. The account to backup.
     def backup account
       backup_file @credentials_file, File.join(@heroku_home, account + '.' + CREDENTIALS)
-      @shell.say "Heroku credentials backed up to account: #{account}."
+      @cli.say_info "Heroku credentials backed up to account: #{account}."
     end
 
     # Destroy Heroku account.
@@ -65,8 +65,8 @@ module HerokuPlus
     
     # Print configured accounts.
     def print_accounts
-      @shell.say "Configured Accounts:"
-      Dir.glob("#{@heroku_home}/*.#{CREDENTIALS}").each {|path| @shell.say " - " + File.basename(path, '.' + CREDENTIALS)}
+      @cli.say_info "Configured Accounts:"
+      Dir.glob("#{@heroku_home}/*.#{CREDENTIALS}").each {|path| @cli.say_info " - " + File.basename(path, '.' + CREDENTIALS)}
     end
   end
 end
