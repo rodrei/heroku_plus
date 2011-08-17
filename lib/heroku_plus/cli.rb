@@ -332,6 +332,7 @@ module HerokuPlus
     # Print associated files for current account.
     def print_account_files
       if valid_file?(@heroku_credentials.file_path) && valid_file?(@ssh_identity.public_file) && valid_file?(@ssh_identity.private_file)
+        say_info "Current Account Files:"
         say_info " - Credentials:      #{@heroku_credentials.file_path}"
         say_info " - SSH ID (private): #{@ssh_identity.private_file}\n"
         say_info " - SSH ID (public):  #{@ssh_identity.public_file}"
