@@ -1,3 +1,12 @@
+= v3.3.0
+
+* Fixed stack dump with backing up, destroying, and switching accounts.
+* Set the default mode to "stage" when mode switching and no argument is supplied.
+* Added Current Account Files header to hp -a -f command.
+* Removed redundant use of specialized console output and replaced with Thor actions instead.
+* Added the -e (edit) option for easily tweaking settings via default editor.
+* Added the db --reset option, default options for PostgreSQL restore, and removed excess db restore options that were not necessary.
+
 = v3.2.0
 
 * Fixed bug with default settings not loading when heroku_plus.yml settings file is missing.
