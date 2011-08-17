@@ -61,12 +61,11 @@ module HerokuPlus
 
     desc "-m, [mode]", "Manage development modes."
     map "-m" => :mode
-    method_option :switch, :aliases => "-s", :desc => "Switch development mode.", :type => :string, :default => "stage"
+    method_option :switch, :aliases => "-s", :desc => "Switch development mode.", :type => :string, :lazy_default => "stage"
     method_option :list, :aliases => "-l", :desc => "Show development modes.", :type => :boolean, :default => false
     def mode mode = nil
       say
       case
-      when mode then switch_mode(mode)
       when options[:switch] then switch_mode(options[:switch])
       when options[:list] then print_modes
       else print_modes
@@ -322,7 +321,6 @@ module HerokuPlus
 
       # Project
       if File.exists? @git_config_file
-        say
         say_info "Current Project Settings:"
         say_info " - Mode: #{@settings[:mode]}"
         say_info " - App:  #{application}"
@@ -351,7 +349,7 @@ module HerokuPlus
         if @modes.keys.empty?
           say_info " - unknown"
         else
-          @modes.each_key {|key| say_info " - Mode: #{key}, App: #{@modes[key][:app]}"}
+          @modes.each_key {|key| say_info " - #{key} (#{@modes[key][:app]})"}
         end
       end
     end
