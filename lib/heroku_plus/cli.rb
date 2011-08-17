@@ -47,7 +47,7 @@ module HerokuPlus
       say
     end
     
-    desc "-p, [pass=COMMAND]", "Pass command to Heroku."
+    desc "-p, [pass=COMMAND]", "Pass command to Heroku for current app/mode."
     map "-p" => :pass
     def pass command
       run "heroku #{command} --app #{application}"
@@ -59,10 +59,10 @@ module HerokuPlus
       run "heroku console --app #{application}"
     end
 
-    desc "-m, [mode]", "Manage modes."
+    desc "-m, [mode]", "Manage development modes."
     map "-m" => :mode
-    method_option :switch, :aliases => "-s", :desc => "Switch mode.", :type => :string, :default => "stage"
-    method_option :list, :aliases => "-l", :desc => "Show modes.", :type => :boolean, :default => false
+    method_option :switch, :aliases => "-s", :desc => "Switch development mode.", :type => :string, :default => "stage"
+    method_option :list, :aliases => "-l", :desc => "Show development modes.", :type => :boolean, :default => false
     def mode mode = nil
       say
       case
