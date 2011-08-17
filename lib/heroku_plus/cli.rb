@@ -61,7 +61,7 @@ module HerokuPlus
 
     desc "-m, [mode]", "Manage modes."
     map "-m" => :mode
-    method_option :switch, :aliases => "-s", :desc => "Switch mode.", :type => :string, :default => nil
+    method_option :switch, :aliases => "-s", :desc => "Switch mode.", :type => :string, :default => "stage"
     method_option :list, :aliases => "-l", :desc => "Show modes.", :type => :boolean, :default => false
     def mode mode = nil
       say
@@ -232,8 +232,8 @@ module HerokuPlus
 
     # Switch mode for current account.
     # ==== Parameters
-    # * +mode+ - Required. The mode to switch to. Defaults to "unknown".
-    def switch_mode mode = "unknown"
+    # * +mode+ - Required. The mode to switch to. Defaults to "stage".
+    def switch_mode mode = "stage"
       begin
         settings = YAML::load_file @settings_file
         @settings[:mode] = mode
