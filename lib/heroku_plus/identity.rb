@@ -1,8 +1,6 @@
 module HerokuPlus
   # Manages SSH identities.
   class Identity
-    include HerokuPlus::Utilties
-
     IDENTITY = "identity"
 
     # Initialize and configure defaults.
@@ -38,7 +36,7 @@ module HerokuPlus
       old_public_file = File.join @ssh_home, @ssh_id + ".pub"
       new_private_file = File.join @ssh_home, account + ".identity"
       new_public_file = File.join @ssh_home, account + ".identity.pub"
-      if valid_file?(new_private_file) && valid_file?(new_public_file)
+      if @cli.valid_file?(new_private_file) && @cli.valid_file?(new_public_file)
         `rm -f #{old_private_file}`
         `rm -f #{old_public_file}`
         `ln -s #{new_private_file} #{old_private_file}`
@@ -53,8 +51,8 @@ module HerokuPlus
     # ==== Parameters
     # * +account+ - Required. The account to backup.
     def backup account
-      backup_file File.join(@ssh_home, @ssh_id), File.join(@ssh_home, account + ".identity")
-      backup_file File.join(@ssh_home, @ssh_id + ".pub"), File.join(@ssh_home, account + ".identity.pub")
+      @cli.backup_file File.join(@ssh_home, @ssh_id), File.join(@ssh_home, account + ".identity")
+      @cli.backup_file File.join(@ssh_home, @ssh_id + ".pub"), File.join(@ssh_home, account + ".identity.pub")
       @cli.say_info "SSH identity backed up to account: #{account}."
     end  
 
@@ -62,8 +60,8 @@ module HerokuPlus
     # ==== Parameters
     # * +account+ - Required. The account to destroy.
     def destroy account
-      destroy_file File.join(@ssh_home, account + ".identity")
-      destroy_file File.join(@ssh_home, account + ".identity.pub")
+      @cli.destroy_file File.join(@ssh_home, account + ".identity")
+      @cli.destroy_file File.join(@ssh_home, account + ".identity.pub")
     end
   end
 end

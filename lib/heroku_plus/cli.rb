@@ -7,7 +7,7 @@ require "pgbackups/client"
 module HerokuPlus
   class CLI < Thor
     include Thor::Actions
-    include HerokuPlus::Utilties
+    include HerokuPlus::Utilities
 
     # Initialize.
     def initialize args = [], options = {}, config = {}

@@ -1,5 +1,5 @@
 module HerokuPlus
-  module Utilties
+  module Utilities
     # Prints info to the console.
     def say_info message
       say_status :info, message, :white
@@ -26,9 +26,9 @@ module HerokuPlus
     # * +file+ - Required. The file to validate.
     # * +message+ - Optional. The error message. Defaults to "Invalid file".
     def valid_file? file, message = "Invalid file"
-      File.exists?(file) ? true : (@shell.say("ERROR: #{message}: #{file}.") and false)
+      File.exists?(file) ? true : (say_error("ERROR: #{message}: #{file}.") and false)
     end
-        
+
     # Backup (duplicate) existing file to new file.
     # ==== Parameters
     # * +old_file+ - Required. The file to be backed up.
@@ -36,19 +36,19 @@ module HerokuPlus
     def backup_file old_file, new_file
       if File.exists? old_file
         if File.exists? new_file
-          answer = @shell.yes? "File exists: \"#{new_file}\". Do you wish to replace the existing file (y/n)?"
+          answer = yes? "File exists: \"#{new_file}\". Do you wish to replace the existing file (y/n)?"
           if answer
             `cp #{old_file} #{new_file}`
-            @shell.say "Replaced: #{new_file}"
+            say_info "Replaced: #{new_file}"
           else
-            @shell.say "Backup aborted."
+            say_info "Backup aborted."
           end
         else
           `cp #{old_file} #{new_file}`
-          @shell.say "Created: #{new_file}"
+          say_info "Created: #{new_file}"
         end
       else
-        @shell.say "ERROR: Backup aborted! File does not exist: #{old_file}"
+        say_error "Backup aborted! File does not exist: #{old_file}"
       end
     end
 
@@ -57,15 +57,15 @@ module HerokuPlus
     # * +file+ - Required. The file to destroy.
     def destroy_file file
       if valid_file? file
-        answer = @shell.yes? "You are about to perminently destroy file: #{file}. Do you wish to continue (y/n)?"
+        answer = yes? "You are about to perminently destroy file: #{file}. Do you wish to continue (y/n)?"
         if answer
           `rm -f #{file}`
-          @shell.say "Destroyed: #{file}"
+          say_info "Destroyed: #{file}"
         else
-          @shell.say "Destroy aborted."
+          say_info "Destroy aborted."
         end
       else
-        @shell.say "ERROR: Destroy aborted! File not found: #{file}"
+        say_error "Destroy aborted! File not found: #{file}"
       end
     end
   end

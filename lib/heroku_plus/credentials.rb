@@ -1,8 +1,6 @@
 module HerokuPlus
   # Manages Heroku credentials.
   class Credentials
-    include HerokuPlus::Utilties
-
     CREDENTIALS = "credentials"
     
     # Initialize and configure defaults.
@@ -26,12 +24,12 @@ module HerokuPlus
     
     # Answer current login.
     def login
-      open(@credentials_file, 'r').readlines.first.strip if valid_file?(@credentials_file)
+      open(@credentials_file, 'r').readlines.first.strip if @cli.valid_file?(@credentials_file)
     end
 
     # Answer current password.
     def password
-      open(@credentials_file, 'r').readlines.last.strip if valid_file?(@credentials_file)
+      open(@credentials_file, 'r').readlines.last.strip if @cli.valid_file?(@credentials_file)
     end    
     
     # Switch to existing Heroku account.
@@ -39,7 +37,7 @@ module HerokuPlus
     # * +account+ - Required. The account to switch to.
     def switch account
       account_file = File.join @heroku_home, account + '.' + CREDENTIALS
-      if valid_file? account_file
+      if @cli.valid_file? account_file
         `rm -f #{@credentials_file}`
         `ln -s #{account_file} #{@credentials_file}`
         @cli.say_info "Heroku credentials switched to account: #{account}"
@@ -52,7 +50,7 @@ module HerokuPlus
     # ==== Parameters
     # * +account+ - Required. The account to backup.
     def backup account
-      backup_file @credentials_file, File.join(@heroku_home, account + '.' + CREDENTIALS)
+      @cli.backup_file @credentials_file, File.join(@heroku_home, account + '.' + CREDENTIALS)
       @cli.say_info "Heroku credentials backed up to account: #{account}."
     end
 
@@ -60,7 +58,7 @@ module HerokuPlus
     # ==== Parameters
     # * +account+ - Required. The account to destroy.
     def destroy account
-      destroy_file File.join(@heroku_home, account + '.' +  CREDENTIALS)
+      @cli.destroy_file File.join(@heroku_home, account + '.' +  CREDENTIALS)
     end
     
     # Print configured accounts.
