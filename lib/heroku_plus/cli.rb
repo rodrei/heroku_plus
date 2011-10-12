@@ -47,7 +47,7 @@ module HerokuPlus
       say
     end
     
-    desc "-p, [pass=COMMAND]", "Pass command to Heroku for current app/mode."
+    desc "-p, [pass=COMMAND]", "Pass command to Heroku for current mode."
     map "-p" => :pass
     def pass command
       run "heroku #{command} --app #{application}"
@@ -82,6 +82,7 @@ module HerokuPlus
     desc "db", "Manage PostgreSQL database."
     method_option :migrate, :aliases => "-m", :desc => "Migrate remote PostgreSQL database (for current mode) and restart server.", :type => :boolean, :default => false
     method_option :backup, :aliases => "-b", :desc => "Backup remote PostgreSQL database (for current mode).", :type => :boolean, :default => false
+    method_option :transfer, :aliases => "-t", :desc => "Transfer remote PostgreSQL database backup for current mode to specified mode.", :type => :string
     method_option :import, :aliases => "-i", :desc => "Import latest remote PostgreSQL database (for current mode) into local database.", :type => :string, :lazy_default => "development"
     method_option :import_full, :aliases => "-I", :desc => "Import remote PostgreSQL database (for current mode) into local database by destroying local datbase, backing up and importing remote database, and running local migrations.", :type => :string, :lazy_default => "development"
     method_option :reset, :aliases => "-R", :desc => "Reset and destroy all data in remote PostgreSQL database (for current mode).", :type => :string, :lazy_default => "SHARED_DATABASE_URL"
@@ -91,6 +92,7 @@ module HerokuPlus
       when options[:migrate] then
         run "heroku rake db:migrate --app #{application} && heroku restart --app #{application}"
       when options[:backup] then backup_remote_database
+      when options[:transfer] then transfer_remote_database(options[:transfer])
       when options[:import] then import_remote_database(options[:import])
       when options[:import_full] then import_remote_database(options[:import_full], :type => "full")
       when options[:reset] then reset_remote_database(options[:reset])
@@ -249,6 +251,28 @@ module HerokuPlus
     def backup_remote_database
       run "heroku pgbackups:capture --expire --app #{application}"
       run "heroku pgbackups --app #{application}"
+    end
+    
+    # Transfers database for current mode to given mode.
+    # ===== Parameters
+    # * +mode+ - The mode to transfer to.
+    def transfer_remote_database mode
+      return unless valid_argument?(mode, "transfer")
+      if @modes.keys.include? mode
+        if @settings[:mode] != mode
+          source_app = @modes[@settings[:mode]][:app]
+          destination_app = @modes[mode][:app]
+          if shell.yes? "You are about to override the \"#{destination_app}\" database. Proceed (y/n)?"
+            run "heroku pgbackups:restore DATABASE `heroku pgbackups:url --app #{source_app}` --app #{destination_app} --confirm #{destination_app}"
+          else
+            say_info "Transfer aborted."
+          end
+        else
+          say_error "Transfer mode must not equal current mode: #{mode} == #{@settings[:mode]}."
+        end
+      else
+        say_error "Invalid mode, not available: #{mode}."
+      end
     end
 
     # Import latest data from remote database into local database.
