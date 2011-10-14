@@ -296,6 +296,8 @@ module HerokuPlus
               pg = PGBackups::Client.new heroku.config_vars(application)["PGBACKUPS_URL"]
               database = "latest.dump"
               run "curl -o #{database} '#{pg.get_latest_backup["public_url"]}'"
+              run "rake db:drop"
+              run "rake db:create"
               # Default PostgreSQL restore settings.
               # -O = Don't restore original data ownership.
               # -w = Don't prompt for a password.
@@ -314,8 +316,6 @@ module HerokuPlus
       # Full remote database import.
       when "full" then
         if options[:skip_warnings] || shell.yes?(warning_message)
-          run "rake db:drop"
-          run "rake db:create"
           backup_remote_database
           import_remote_database env, :type => "simple", :skip_warnings => true
           run "rake db:migrate"
