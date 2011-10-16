@@ -286,7 +286,7 @@ module HerokuPlus
       case options[:type]
       # Simple remote database import.
       when "simple" then
-        db_settings = database_settings
+        db_settings = load_database_settings
         if db_settings.empty?
           say_error "Unable to load database setings for current app. Are you within the root folder of a Rails project?"
         else
@@ -294,7 +294,7 @@ module HerokuPlus
             begin
               heroku = Heroku::Client.new @heroku_credentials.login, @heroku_credentials.password
               pg = PGBackups::Client.new heroku.config_vars(application)["PGBACKUPS_URL"]
-              database = "latest.dump"
+              database = File.join "db", "archive.dump"
               run "curl -o #{database} '#{pg.get_latest_backup["public_url"]}'"
               run "rake db:drop"
               run "rake db:create"
@@ -379,11 +379,11 @@ module HerokuPlus
     end
 
     # Answer database settings for current application.
-    def database_settings
+    def load_database_settings
       database_settings_file = "config/database.yml"
       valid_file?(database_settings_file) ? YAML::load_file(database_settings_file) : {}
     end
-    
+
     # Answer whether the argument is valid or not.
     # ==== Parameters
     # * +name+ - Required. The argument name.
