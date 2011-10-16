@@ -183,6 +183,10 @@ From this point forward, you can switch between accounts as follows:
 5. Type: git push heroku master.
 6. Have a beer.
 
+= Resources
+
+* {PostgreSQL Database Backup Transfers}[http://robots.thoughtbot.com/post/9082446672/the-most-underrated-heroku-feature]
+
 = Author
 
 {Red Alchemist}[http://www.redalchemist.com]
