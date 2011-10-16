@@ -1,3 +1,11 @@
+= v3.4.0
+
+* Fixed bug with simple database imports where dropping and recreating the database was not part of the process.
+* Removed the unused namespace placeholder.
+* Renamed the database_settings method to load_database_settings.
+* Changed /latest.dump to be /db/archive.dump (matched DB gem behavior now).
+* Added the db -t option for transferring a database backup from one app to another.
+
 = v3.3.0
 
 * Fixed stack dump with backing up, destroying, and switching accounts.
