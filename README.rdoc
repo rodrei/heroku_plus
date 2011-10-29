@@ -187,9 +187,13 @@ From this point forward, you can switch between accounts as follows:
 
 * {PostgreSQL Database Backup Transfers}[http://robots.thoughtbot.com/post/9082446672/the-most-underrated-heroku-feature]
 
-= Author
+= Company
 
 {Red Alchemist}[http://www.redalchemist.com]
+
+= Author
+
+{Brooke Kuhlmann}[http://www.redalchemist.com]
 
 = License
 
