@@ -40,9 +40,9 @@ module HerokuPlus
       if @cli.valid_file? account_file
         `rm -f #{@credentials_file}`
         `ln -s #{account_file} #{@credentials_file}`
-        @cli.say_info "Heroku credentials switched to account: #{account}"
+        @cli.info "Heroku credentials switched to account: #{account}"
       else
-        @cli.say_error "Heroku account does not exist!"
+        @cli.error "Heroku account does not exist!"
       end
     end
 
@@ -51,7 +51,7 @@ module HerokuPlus
     # * +account+ - Required. The account to backup.
     def backup account
       @cli.backup_file @credentials_file, File.join(@heroku_home, account + '.' + CREDENTIALS)
-      @cli.say_info "Heroku credentials backed up to account: #{account}."
+      @cli.info "Heroku credentials backed up to account: #{account}."
     end
 
     # Destroy Heroku account.
@@ -63,8 +63,8 @@ module HerokuPlus
     
     # Print configured accounts.
     def print_accounts
-      @cli.say_info "Configured Accounts:"
-      Dir.glob("#{@heroku_home}/*.#{CREDENTIALS}").each {|path| @cli.say_info " - " + File.basename(path, '.' + CREDENTIALS)}
+      @cli.info "Configured Accounts:"
+      Dir.glob("#{@heroku_home}/*.#{CREDENTIALS}").each {|path| @cli.info " - " + File.basename(path, '.' + CREDENTIALS)}
     end
   end
 end

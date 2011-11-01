@@ -1,13 +1,14 @@
 require "yaml"
 require "thor"
 require "thor/actions"
+require "thor_plus/actions"
 require "heroku"
 require "pgbackups/client"
 
 module HerokuPlus
   class CLI < Thor
     include Thor::Actions
-    include HerokuPlus::Utilities
+    include ThorPlus::Actions
 
     # Initialize.
     def initialize args = [], options = {}, config = {}
@@ -119,6 +120,17 @@ module HerokuPlus
     end
 
     protected
+
+    # Answer the substring of the given string within a start and end delimiter range.
+    # ==== Parameters
+    # * +string+ - Required. The string to search.
+    # * +delimiter_start+ - Required. The start delimiter.
+    # * +delimiter_end+ - Required. The end delimiter.
+    def grab_substring string, delimiter_start, delimiter_end
+      index = string.index(delimiter_start) + 1
+      length = (string.rindex(delimiter_end) || 0) - index
+      string[index, length]
+    end
     
     # Load settings.
     def load_settings
@@ -136,7 +148,7 @@ module HerokuPlus
           settings = YAML::load_file @settings_file
           @settings.merge! settings.reject {|key, value| value.nil?}
         rescue
-          say_error "Invalid settings: #{@settings_file}."
+          error "Invalid settings: #{@settings_file}."
         end
       end
     end
@@ -177,7 +189,7 @@ module HerokuPlus
           end
         end
       else
-        say_error "Could not load Git configuration file for current project: #{@git_config_file}"
+        error "Could not load Git configuration file for current project: #{@git_config_file}"
       end
     end
 
@@ -193,11 +205,11 @@ module HerokuPlus
       return unless valid_argument?(account, "switch")
       answer = true
       if @settings[:skip_switch_warnings].to_s == "false"
-        say_info "Switching to account \"#{account}\" will destroy the following files:"
-        say_info " #{@heroku_credentials.file_path}"
-        say_info " #{@ssh_identity.public_file}"
-        say_info " #{@ssh_identity.private_file}"
-        say_info "You can suppress this warning message by setting skip_switch_warnings = true in your settings file: #{@settings_file}"
+        info "Switching to account \"#{account}\" will destroy the following files:"
+        info " #{@heroku_credentials.file_path}"
+        info " #{@ssh_identity.public_file}"
+        info " #{@ssh_identity.private_file}"
+        info "You can suppress this warning message by setting skip_switch_warnings = true in your settings file: #{@settings_file}"
         say
         answer = shell.yes? "Do you wish to continue (y/n)?"
         say
@@ -208,7 +220,7 @@ module HerokuPlus
         say
         print_account_info
       else
-        say_info "Switch canceled."
+        info "Switch canceled."
       end
     end
 
@@ -226,7 +238,7 @@ module HerokuPlus
     # * +account+ - Required. The account to destroy.
     def destroy account
       return unless valid_argument?(account, "destroy")
-      say_info "Destroying Heroku credentials and SSH identities..."
+      info "Destroying Heroku credentials and SSH identities..."
       @heroku_credentials.destroy account
       @ssh_identity.destroy account
     end
@@ -239,11 +251,11 @@ module HerokuPlus
         settings = YAML::load_file @settings_file
         @settings[:mode] = mode
         save_settings @settings
-        say_info "Switched mode to: #{mode}."
+        info "Switched mode to: #{mode}."
         say
         print_account_info
       rescue
-        say_error "Invalid #{@settings_file} settings file."
+        error "Invalid #{@settings_file} settings file."
       end
     end
 
@@ -265,13 +277,13 @@ module HerokuPlus
           if shell.yes? "You are about to override the \"#{destination_app}\" database. Proceed (y/n)?"
             run "heroku pgbackups:restore DATABASE `heroku pgbackups:url --app #{source_app}` --app #{destination_app} --confirm #{destination_app}"
           else
-            say_info "Transfer aborted."
+            info "Transfer aborted."
           end
         else
-          say_error "Transfer mode must not equal current mode: #{mode} == #{@settings[:mode]}."
+          error "Transfer mode must not equal current mode: #{mode} == #{@settings[:mode]}."
         end
       else
-        say_error "Invalid mode, not available: #{mode}."
+        error "Invalid mode, not available: #{mode}."
       end
     end
 
@@ -288,7 +300,7 @@ module HerokuPlus
       when "simple" then
         db_settings = load_database_settings
         if db_settings.empty?
-          say_error "Unable to load database setings for current app. Are you within the root folder of a Rails project?"
+          error "Unable to load database setings for current app. Are you within the root folder of a Rails project?"
         else
           if options[:skip_warnings] || shell.yes?(warning_message)
             begin
@@ -307,10 +319,10 @@ module HerokuPlus
               run "pg_restore #{@settings[:pg_restore_options]} -h #{db_settings[env]['host']} -U #{db_settings[env]['username']} -d #{db_settings[env]['database']} #{database}"
               run "rm -f #{database}"
             rescue URI::InvalidURIError
-              say_error "Invalid database URI. Does the backup exist?"
+              error "Invalid database URI. Does the backup exist?"
             end
           else
-            say_info "Import aborted."
+            info "Import aborted."
           end
         end
       # Full remote database import.
@@ -320,10 +332,10 @@ module HerokuPlus
           import_remote_database env, type: "simple", skip_warnings: true
           run "rake db:migrate"
         else
-          say_info "Import aborted."
+          info "Import aborted."
         end
       else
-        say_error "Unable to determine import type."
+        error "Unable to determine import type."
       end
     end
     
@@ -336,44 +348,44 @@ module HerokuPlus
     def print_account_info
       # Account
       if valid_file?(@heroku_credentials.file_path)
-        say_info "Current Account Settings:"
-        say_info " - Login:    #{@heroku_credentials.login}" 
-        say_info " - Password: #{'*' * @heroku_credentials.password.size}"
+        info "Current Account Settings:"
+        info " - Login:    #{@heroku_credentials.login}" 
+        info " - Password: #{'*' * @heroku_credentials.password.size}"
       else
-        say_error "Heroku account credentials and/or SSH identity not found!"
+        error "Heroku account credentials and/or SSH identity not found!"
       end
 
       # Project
       if File.exists? @git_config_file
-        say_info "Current Project Settings:"
-        say_info " - Mode: #{@settings[:mode]}"
-        say_info " - App:  #{application}"
+        info "Current Project Settings:"
+        info " - Mode: #{@settings[:mode]}"
+        info " - App:  #{application}"
       end
     end
 
     # Print associated files for current account.
     def print_account_files
       if valid_file?(@heroku_credentials.file_path) && valid_file?(@ssh_identity.public_file) && valid_file?(@ssh_identity.private_file)
-        say_info "Current Account Files:"
-        say_info " - Credentials:      #{@heroku_credentials.file_path}"
-        say_info " - SSH ID (private): #{@ssh_identity.private_file}\n"
-        say_info " - SSH ID (public):  #{@ssh_identity.public_file}"
+        info "Current Account Files:"
+        info " - Credentials:      #{@heroku_credentials.file_path}"
+        info " - SSH ID (private): #{@ssh_identity.private_file}\n"
+        info " - SSH ID (public):  #{@ssh_identity.public_file}"
       else
-        say_error "Heroku account credentials not found!"
+        error "Heroku account credentials not found!"
       end
     end
 
     # Print available modes.
     def print_modes
-      say_info "Current Mode:"
-      say_info " - #{@settings[:mode]}"
+      info "Current Mode:"
+      info " - #{@settings[:mode]}"
       
       if File.exists? @git_config_file
-        say_info "Available Modes:"
+        info "Available Modes:"
         if @modes.keys.empty?
-          say_info " - unknown"
+          info " - unknown"
         else
-          @modes.each_key {|key| say_info " - #{key} (#{@modes[key][:app]})"}
+          @modes.each_key {|key| info " - #{key} (#{@modes[key][:app]})"}
         end
       end
     end
@@ -390,7 +402,7 @@ module HerokuPlus
     # * +type+ - Required. The argument type.
     def valid_argument? name, type
       if name.nil? || name.empty? || name == type
-        say_error("Invalid/missing argument.") and false
+        error("Invalid/missing argument.") and false
       else
         true
       end
