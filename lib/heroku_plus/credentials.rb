@@ -51,7 +51,7 @@ module HerokuPlus
     # * +account+ - Required. The account to backup.
     def backup account
       @cli.backup_file @credentials_file, File.join(@heroku_home, account + '.' + CREDENTIALS)
-      @cli.info "Heroku credentials backed up to account: #{account}."
+      @cli.info "Heroku credentials backed up to account: #{account}"
     end
 
     # Destroy Heroku account.

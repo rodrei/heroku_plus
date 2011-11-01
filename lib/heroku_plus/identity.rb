@@ -41,7 +41,7 @@ module HerokuPlus
         `rm -f #{old_public_file}`
         `ln -s #{new_private_file} #{old_private_file}`
         `ln -s #{new_public_file} #{old_public_file}`
-        @cli.info "SSH identity switched to account: #{account}."
+        @cli.info "SSH identity switched to account: #{account}"
       else
         @cli.error "SSH identity does not exist!"
       end
@@ -53,7 +53,7 @@ module HerokuPlus
     def backup account
       @cli.backup_file File.join(@ssh_home, @ssh_id), File.join(@ssh_home, account + ".identity")
       @cli.backup_file File.join(@ssh_home, @ssh_id + ".pub"), File.join(@ssh_home, account + ".identity.pub")
-      @cli.info "SSH identity backed up to account: #{account}."
+      @cli.info "SSH identity backed up to account: #{account}"
     end  
 
     # Destroy SSH identity.
