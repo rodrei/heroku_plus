@@ -27,12 +27,12 @@ module HerokuPlus
 
     desc "-a, [account]", "Manage accounts."
     map "-a" => :account
-    method_option :switch, :aliases => "-s", :desc => "Switch to existing account.", :type => :string, :default => nil
-    method_option :backup, :aliases => "-b", :desc => "Backup existing account to new account.", :type => :string, :default => nil
-    method_option :destroy, :aliases => "-d", :desc => "Delete existing account.", :type => :string, :default => nil
-    method_option :list, :aliases => "-l", :desc => "Show all configured accounts.", :type => :boolean, :default => false
-    method_option :info, :aliases => "-i", :desc => "Show current credentials and SSH identity.", :type => :boolean, :default => false
-    method_option :files, :aliases => "-f", :desc => "Show current account files.", :type => :boolean, :default => false
+    method_option :switch, aliases: "-s", desc: "Switch to existing account.", type: :string, default: nil
+    method_option :backup, aliases: "-b", desc: "Backup existing account to new account.", type: :string, default: nil
+    method_option :destroy, aliases: "-d", desc: "Delete existing account.", type: :string, default: nil
+    method_option :list, aliases: "-l", desc: "Show all configured accounts.", type: :boolean, default: false
+    method_option :info, aliases: "-i", desc: "Show current credentials and SSH identity.", type: :boolean, default: false
+    method_option :files, aliases: "-f", desc: "Show current account files.", type: :boolean, default: false
     def account
       say
       case
@@ -61,8 +61,8 @@ module HerokuPlus
 
     desc "-m, [mode]", "Manage development modes."
     map "-m" => :mode
-    method_option :switch, :aliases => "-s", :desc => "Switch development mode.", :type => :string, :lazy_default => "stage"
-    method_option :list, :aliases => "-l", :desc => "Show development modes.", :type => :boolean, :default => false
+    method_option :switch, aliases: "-s", desc: "Switch development mode.", type: :string, lazy_default: "stage"
+    method_option :list, aliases: "-l", desc: "Show development modes.", type: :boolean, default: false
     def mode mode = nil
       say
       case
@@ -80,12 +80,12 @@ module HerokuPlus
     end
 
     desc "db", "Manage PostgreSQL database."
-    method_option :migrate, :aliases => "-m", :desc => "Migrate remote PostgreSQL database (for current mode) and restart server.", :type => :boolean, :default => false
-    method_option :backup, :aliases => "-b", :desc => "Backup remote PostgreSQL database (for current mode).", :type => :boolean, :default => false
-    method_option :transfer, :aliases => "-t", :desc => "Transfer remote PostgreSQL database backup for current mode to specified mode.", :type => :string
-    method_option :import, :aliases => "-i", :desc => "Import latest remote PostgreSQL database (for current mode) into local database.", :type => :string, :lazy_default => "development"
-    method_option :import_full, :aliases => "-I", :desc => "Import remote PostgreSQL database (for current mode) into local database by destroying local datbase, backing up and importing remote database, and running local migrations.", :type => :string, :lazy_default => "development"
-    method_option :reset, :aliases => "-R", :desc => "Reset and destroy all data in remote PostgreSQL database (for current mode).", :type => :string, :lazy_default => "SHARED_DATABASE_URL"
+    method_option :migrate, aliases: "-m", desc: "Migrate remote PostgreSQL database (for current mode) and restart server.", type: :boolean, default: false
+    method_option :backup, aliases: "-b", desc: "Backup remote PostgreSQL database (for current mode).", type: :boolean, default: false
+    method_option :transfer, aliases: "-t", desc: "Transfer remote PostgreSQL database backup for current mode to specified mode.", type: :string
+    method_option :import, aliases: "-i", desc: "Import latest remote PostgreSQL database (for current mode) into local database.", type: :string, lazy_default: "development"
+    method_option :import_full, aliases: "-I", desc: "Import remote PostgreSQL database (for current mode) into local database by destroying local datbase, backing up and importing remote database, and running local migrations.", type: :string, lazy_default: "development"
+    method_option :reset, aliases: "-R", desc: "Reset and destroy all data in remote PostgreSQL database (for current mode).", type: :string, lazy_default: "SHARED_DATABASE_URL"
     def db
       say
       case
@@ -94,7 +94,7 @@ module HerokuPlus
       when options[:backup] then backup_remote_database
       when options[:transfer] then transfer_remote_database(options[:transfer])
       when options[:import] then import_remote_database(options[:import])
-      when options[:import_full] then import_remote_database(options[:import_full], :type => "full")
+      when options[:import_full] then import_remote_database(options[:import_full], type: "full")
       when options[:reset] then reset_remote_database(options[:reset])
       else say("Type 'hp help db' for usage.")
       end
@@ -124,10 +124,10 @@ module HerokuPlus
     def load_settings
       # Defaults.
       @settings = {
-        :ssh_id => "id_rsa",
-        :mode => "stage",
-        :skip_switch_warnings => false,
-        :pg_restore_options => "-O -w"
+        ssh_id: "id_rsa",
+        mode: "stage",
+        skip_switch_warnings: false,
+        pg_restore_options: "-O -w"
       }
       @ssh_identity = Identity.new self, @settings[:ssh_id]
       # Load settings file - Trumps defaults.
@@ -281,7 +281,7 @@ module HerokuPlus
     # ==== Options
     # * +type+ - Optional. The type of database import. Defaults to "simple".
     # * +skip_warnings+ - Optional. Skips warning messages and prompts. Defaults to false.
-    def import_remote_database env = "development", options = {:type => "simple"}
+    def import_remote_database env = "development", options = {type: "simple"}
       warning_message = "You are about to perminently override all data in the local \"#{env}\" database. Do you wish to continue (y/n)?"
       case options[:type]
       # Simple remote database import.
@@ -317,7 +317,7 @@ module HerokuPlus
       when "full" then
         if options[:skip_warnings] || shell.yes?(warning_message)
           backup_remote_database
-          import_remote_database env, :type => "simple", :skip_warnings => true
+          import_remote_database env, type: "simple", skip_warnings: true
           run "rake db:migrate"
         else
           say_info "Import aborted."
