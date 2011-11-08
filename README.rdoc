@@ -13,8 +13,9 @@ soon find that you'll be using less of the _heroku_ command and more of the _hp_
 
 = Requirements
 
-1. Mac OS X, Linux, or UNIX.
-2. A Heroku account.
+1. A UNIX-based system.
+2. {Ruby 1.9.x}[http://www.ruby-lang.org]
+3. A Heroku[http://www.heroku.com] account.
 
 = Setup
 
