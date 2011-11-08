@@ -171,7 +171,7 @@ module HerokuPlus
     #   fetch = +refs/heads/*:refs/remotes/merc-stage/*
     #
     # In the example above, the valid modes would be: production and stage. The associated apps
-    # would be: example and example-stage. The resulting configuration would be: {"production" => {:app => "example"}, "stage" => {:app => "example-stage"}}
+    # would be: example and example-stage. The resulting configuration would be: {"production" => {app: "example"}, "stage" => {app: "example-stage"}}
     def load_modes
       @modes = {}
       mode = nil
@@ -185,7 +185,7 @@ module HerokuPlus
           # Acquire the mode from lines that begin with "[remote" only.
           if line.include? "[remote "
             mode = grab_substring line, "\"", "\""
-            @modes.merge! mode => {:app => nil}
+            @modes.merge! mode => {app: nil}
           end
         end
       else
