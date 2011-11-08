@@ -1,9 +1,9 @@
 = v4.0.0
 
-# Switched to Ruby 1.9 syntax.
-# Applied updated Gemsmith specs.
-# Upgraded to the Thor+ gem and applied related enhancements.
-# Removed periods from account name output.
+* Switched to Ruby 1.9 syntax.
+* Applied updated Gemsmith specs.
+* Upgraded to the Thor+ gem and applied related enhancements.
+* Removed periods from account name output.
 
 = v3.4.0
 
