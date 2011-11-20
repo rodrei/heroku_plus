@@ -12,7 +12,7 @@ module HerokuPlus
 
     # Initialize.
     def initialize args = [], options = {}, config = {}
-      super
+      super args, options, config
       
       # Defaults.
       @heroku_credentials = Credentials.new self
