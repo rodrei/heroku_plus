@@ -188,13 +188,21 @@ From this point forward, you can switch between accounts as follows:
 
 * {PostgreSQL Database Backup Transfers}[http://robots.thoughtbot.com/post/9082446672/the-most-underrated-heroku-feature]
 
-= Company
+= Tests
 
-{Red Alchemist}[http://www.redalchemist.com]
+To test, do the following:
 
-= Author
+1. cd to the gem root.
+2. bundle install
+3. bundle exec rspec spec
 
-{Brooke Kuhlmann}[http://www.redalchemist.com]
+= Contributions
+
+Please log all feedback/issues via {GitHub Issues}[https://github.com/bkuhlmann/heroku_plus/issues]. Thanks.
+
+= Credits
+
+Developed by {Brooke Kuhlmann}[http://www.redalchemist.com] at {Red Alchemist}[http://www.redalchemist.com]
 
 = License
 
