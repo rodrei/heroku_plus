@@ -1,9 +1,5 @@
-$LOAD_PATH.unshift(File.dirname(__FILE__))
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
-require 'heroku_plus'
-require 'spec'
-require 'spec/autorun'
+require "bundler/setup"
+require "heroku_plus"
 
-Spec::Runner.configure do |config|
-  
+RSpec.configure do |config|
 end
