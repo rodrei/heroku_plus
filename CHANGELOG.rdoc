@@ -1,3 +1,10 @@
+= v4.1.0
+
+* Fixed bug with args, options, config not being passed to super during CLI initialization.
+* Applied Gemsmith spec updates to README.
+* Cleaned up the RSpec suite.
+* Upgraded to Thor+ 0.2.0 and removed the load_settings and save_settings methods.
+
 = v4.0.0
 
 * Switched to Ruby 1.9 syntax.
