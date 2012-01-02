@@ -20,7 +20,8 @@ module HerokuPlus
       @git_config_file = ".git/config"
 
       # Load and apply custom settings (if any).
-      load_settings
+      @settings = load_yaml @settings_file, {ssh_id: "id_rsa", mode: "stage", skip_switch_warnings: false, pg_restore_options: "-O -w"}
+      @ssh_identity = Identity.new self, @settings[:ssh_id]
 
       # Load modes and ensure current mode is set.
       load_modes
@@ -132,34 +133,6 @@ module HerokuPlus
       string[index, length]
     end
     
-    # Load settings.
-    def load_settings
-      # Defaults.
-      @settings = {
-        ssh_id: "id_rsa",
-        mode: "stage",
-        skip_switch_warnings: false,
-        pg_restore_options: "-O -w"
-      }
-      @ssh_identity = Identity.new self, @settings[:ssh_id]
-      # Load settings file - Trumps defaults.
-      if File.exists? @settings_file
-        begin
-          settings = YAML::load_file @settings_file
-          @settings.merge! settings.reject {|key, value| value.nil?}
-        rescue
-          error "Invalid settings: #{@settings_file}."
-        end
-      end
-    end
-    
-    # Save settings.
-    # ==== Parameters
-    # * +settings+ - Required. Saves settings to file.
-    def save_settings settings
-      File.open(@settings_file, 'w') {|file| file << YAML::dump(settings)}
-    end
-
     # Load and store the various modes as defined by the .git/config file of a project.
     # An example of modes defined in a .git/config file are as follows:
     #
@@ -250,7 +223,7 @@ module HerokuPlus
       begin
         settings = YAML::load_file @settings_file
         @settings[:mode] = mode
-        save_settings @settings
+        save_yaml @settings_file, @settings
         info "Switched mode to: #{mode}."
         say
         print_account_info
