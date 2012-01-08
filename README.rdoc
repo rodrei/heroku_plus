@@ -1,5 +1,7 @@
 = Overview
 
+{<img src="https://secure.travis-ci.org/bkuhlmann/heroku_plus.png" />}[http://travis-ci.org/bkuhlmann/heroku_plus]
+
 Managing multiple Heroku[http://heroku.com/] accounts is not easy with the Heroku gem. This gem builds upon capabilities found in the Heroku gem by
 adding multi-account support so you can switch between accounts using a single command line command. In addition to the multi-account support, this
 gem also allows native Heroku commands enhanced with your current account settings. Once you get your feet wet this this gem, you'll
