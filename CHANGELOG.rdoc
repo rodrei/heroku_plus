@@ -1,3 +1,11 @@
+= v4.2.0
+
+* Added Travis CI support.
+* Added the spec/tmp dir to .gitignore.
+* Added Ruby encoding to binary.
+* Switched gemspecs to listing files via Ruby code rather than shelling out to Git.
+* Removed the packaging of test files.
+
 = v4.1.0
 
 * Fixed bug with args, options, config not being passed to super during CLI initialization.
